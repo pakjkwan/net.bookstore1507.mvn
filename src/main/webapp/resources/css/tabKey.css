@@ -1,0 +1,80 @@
+@CHARSET "UTF-8";
+
+.tabKey {
+	height: 35px;
+	position: relative;
+	width: 80%;
+	margin: 0 auto;
+}
+
+.tabKey li {
+	float: left;
+	width: 138px;
+	height: 33px;
+	border: 1px #ccc solid;
+	color: #666;
+	font-weight: 600;
+	font-size: 14px;
+	display: inline-block;
+	border-right: 0;
+	line-height: 33px;
+	text-align: center;
+}
+
+.tabKey li a {
+	width: 138px;
+	height: 33px;
+	color: #666;
+	font-weight: 600;
+	font-size: 14px;
+	float: left;
+	border-right: 0;
+	line-height: 33px;
+	text-align: center;
+	display: inline-block;
+}
+
+.tabKey li.end {
+	border-right: 1px #ccc solid;
+}
+
+.tabKey li.on, .tabKey li.on1 {
+	border: none;
+	width: 139px;
+	height: 35px;
+	background: #c1c1c1;
+	color: #fff;
+}
+
+.tabKey li.on a, .tabKey li.on1 a {
+	color: #fff;
+}
+
+.tabKey div {
+	color: #666;
+	width: 97%;
+}
+
+.depth {
+	width: 600px;
+	text-align: center;
+	border: 1px solid black;
+}
+
+.tabKey .depth>div {
+	display: none;
+	font-size: 12px;
+	position: absolute;
+	left: 0;
+	top: 35px
+}
+
+.tabKey a {
+	color: #444;
+	text-decoration: none;
+}
+
+.tabKey a:hover {
+	color: yellow;
+	text-decoration: none;
+}

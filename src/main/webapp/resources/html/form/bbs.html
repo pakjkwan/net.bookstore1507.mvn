@@ -1,0 +1,109 @@
+<!--======================================================-->
+<!--insert-->
+<!--======================================================-->
+
+<form action="board_insert.do?hobby=" ${hobby}" method="post"
+	enctype="multipart/form-data">
+	<table>
+		<tr>
+			<td><b>이름:</b> <input type=text name="name"><br></td>
+		</tr>
+		<tr>
+			<td><b>제목:</b> <input type=text name="title"><br></td>
+		</tr>
+		<tr>
+			<td><b>내용:</b> <textarea name="content" rows="10" cols="50"></textarea>
+				<br></td>
+		</tr>
+		<tr>
+			<td><b>성별:</b> <input type="radio" value="man" name="gender"><b>man</b>&nbsp;
+				<input type="radio" value="woman" name="gender"><b>woman<br></td>
+		</tr>
+		<tr>
+			<td><b>관심사:</b> <input type="checkbox" value="study"
+				name="hobby"><b>독서</b> &nbsp; <input type="checkbox"
+				value="soccer" name="hobby"><b>운동</b>&nbsp; <input
+				type="checkbox" value="movie" name="hobby"><b>영화 감상</b>
+				&nbsp; <input type="checkbox" value="traval" name="hobby"><b>등산</b>
+				&nbsp; <input type="checkbox" value="watch" name="hobby"><b>스포츠
+					관람</b> &nbsp; <input type="checkbox" value="shopping" name="hobby"><b>쇼핑</b>
+				&nbsp; <br></td>
+		</tr>
+		<tr>
+			<td><b>파일:</b> <input type="file" name="upload_f">
+			<p>
+					<input type="submit" value=" 글쓰기 "> <input type="reset"
+						value=" 취소"></td>
+		</tr>
+	</table>
+</form>
+<!--======================================================-->
+<!--update-->
+<!--======================================================-->
+<!--======================================================-->
+<!--detail-->
+<!--======================================================-->
+<table style="width:800px; border:0.1em; border-style:solid; ">
+		
+		<tr height=30>
+			<td colspan=5 align=center>
+				<img src="./resources/img/board-bar.gif">
+			
+				<p><a href="javascript:na_open_window('win', 'board_insertform.do', 300, 200, 500, 510, 0, 0, 0, 0, 0)" target="_self">
+				[CGV_자유게시판 글쓰기] &nbsp;&nbsp; </a></p>
+				
+				<br>
+			</td>
+			
+		</tr>
+		
+		<tr bgcolor=skyblue height=30>
+			<td width=100px>글번호</td><td width=600px>제목</td><td width=100px>작성자</td>
+		</tr>	
+		<tr>	
+			<td>${naver.hobby_idx}</td><td>${naver.title}</td><td>${naver.name} </td>
+		</tr>
+		
+		<tr height=100>
+			<td>내용</td>
+			<td colspan=2><b> ${naver.content} </b></td>
+		</tr>	
+		<tr height=50>
+			<td>그림첨부</td>
+			<td colspan=2> <img src= "upload/${naver.img_file_name}" width=30 height=30> </td>
+		</tr>
+		<tr height=50>
+			<td>삭제하기</td>
+			<td colspan=2><a href="board_delete2.do?hobby_idx=${naver.hobby_idx}" ><span> 삭제하기 </span></a></td>
+		</tr>
+	</table>
+<!--======================================================-->
+<!--list-->
+<!--======================================================-->
+  <table id="gList_t" style="width:100%;" >
+			  <tr style="height: 30px;">
+			  	<td colspan="5" style="background-color: gray;color: black">
+					<p><a href="board_insertform.do">
+					[CGV_자유게시판 글쓰기] &nbsp;&nbsp; </a></p>
+				</td>
+			  </tr>
+			   <tr>
+				<td width=20%>글번호</td>
+				<td width=20%>이름</td>
+				<td width=20%>제목</td>
+				<td width=20%>성별</td>
+				<td width=20%>이미지</td>
+			   </tr>
+			   
+			   <c:forEach var="bean" items="${naver}">
+			     <tr align="center" valign="middle" bordercolor="#333333"
+					onmouseover="this.style.backgroundColor='#FFFFCC'"
+					onmouseout="this.style.backgroundColor=''">
+			      <td>${bean.hobby_idx}</td>
+				  <td>${bean.name} </td>
+				  <td><a href="javascript:na_open_window('win', 'board_detail.do?hobby_idx=${bean.hobby_idx }', 300, 10, 850, 800, 0, 0, 0, 0, 0)" target="_self">${bean.title}</a></td>
+				  <td> ${bean.gender} </td>
+				  <td> <img src= "upload/${bean.img_file_name}" width=30 height=30> </td>
+			   </c:forEach>
+			 
+			  </table>

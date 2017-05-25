@@ -1,0 +1,17 @@
+<div>
+	<select name="birthMonth"><option value="-1">-&nbsp;Month:&nbsp;-</option>
+   	 <script type="text/javascript">
+    var monthStr = new Array("January", "February", "March", "April", "May", "June", 
+    		"July", "August", "September", "October", "November","December");
+
+        for (var i = 0; i < 12; i++) {
+            if (i != 8) {                                           
+              document.write('<option value="' + (i + 1) + '">' + monthStr[i] + '</option>');
+        } else {
+              document.write('<option value="' + (i + 1) + '" selected>' + monthStr[i] 
+              + '</option>');
+        }
+       }
+    </script>
+</select>
+</div>

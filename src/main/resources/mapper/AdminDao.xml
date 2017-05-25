@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.intime.java33.dao.AdminDao">
+    
+    <!-- html로부터 등록폼에 등록된 정보들을 DB에 insert시키는 쿼리 -->
+    <insert id="addAdmin" parameterType="admin">
+        insert into ADMINS(ADMIN_ID,ADMIN_PW,ADMIN_NAME,ADMIN_PH,ADMIN_EMAIL,ADMIN_GROUP,JOIN_STATUS)
+        values(#{a_id},#{a_pw},#{a_name},#{a_ph},#{a_email},#{a_group},#{j_status})
+    </insert>
+    
+    <!-- id와 pw를 가지고 DB의 id,pw,승인status를 가져오는 쿼리 -->
+    <select id="existsAdmin" parameterType="HashMap" resultType="admin">
+		select
+			ADMIN_ID as a_id,
+			ADMIN_PW as a_pw,
+			ADMIN_NAME as a_name,
+			ADMIN_PH as a_ph,
+			ADMIN_EMAIL as a_email,
+			ADMIN_GROUP as a_group,
+			JOIN_STATUS as j_status
+		from ADMINS
+		where ADMIN_ID=#{id}
+	</select>
+	
+    <!-- id로 내정보보기 하고 수정을 눌렀을때 DB안의 data를 수정하는 쿼리 -->
+    <update id="updateAdmin" parameterType="admin">
+		update ADMINS set
+			ADMIN_PH=#{a_ph},
+			ADMIN_EMAIL=#{a_email},
+			ADMIN_GROUP=#{a_group}	
+		where ADMIN_ID=#{a_id}
+	</update>
+    
+	<!-- id로 계정탈퇴할때 DB에서 삭제하는 쿼리 -->
+	<delete id="deleteAdmin" parameterType="string">
+		delete from ADMINS
+		where ADMIN_ID=#{id}
+	</delete>
+	<!-- 관리자가 개설한 강좌를 강의하는 강사들 -->
+	<select id="getTeacher" parameterType="string" resultType="teacher">
+	    select
+			t.TCH_NAME as t_name,
+			t.TCH_PH as t_ph,
+			t.TCH_EMAIL as t_email,
+			t.TCH_ADDR as t_addr
+		from TEACHERS t, LECTURES l
+		where l.ADMIN_ID=#{value}
+		and l.TCH_EMAIL=t.TCH_EMAIL
+	</select>
+	<select id="getTchClasses" parameterType="map" resultType="lecture">
+	    select
+	    	LT_NO as l_no,
+	    	LT_NAME as l_name,
+	    	LT_ROOM as l_room,
+	    	LT_S_DAY as l_s_day,
+	    	LT_E_DAY as l_e_day
+	    from LECTURES
+	    where TCH_EMAIL=#{t_email} and ADMIN_ID=#{a_id}
+	</select>
+	<select id="a_existId" parameterType="string" resultType="admin">
+	    select
+	    	ADMIN_ID as a_id
+	    from ADMINS
+	    where ADMIN_ID=#{a_id}
+	</select>
+	<delete id="a_deleteAdmin" parameterType="string">
+	    delete from ADMINS
+		where ADMIN_ID=#{a_id}
+	</delete>
+	<select id="a_delLec" parameterType="string" resultType="lecture">
+	    select *
+	    from LECTURES
+	    where ADMIN_ID=#{a_id}
+	</select>
+	<delete id="a_delAttend" parameterType="int">
+	    delete from ATTEND
+		where LT_NO=#{delLecNo}
+	</delete>
+	<delete id="a_delCheck" parameterType="int">
+	    delete from ST_LEC_REG_CHECK
+		where LT_NO=#{delLecNo}
+	</delete>
+	<delete id="a_delNotice" parameterType="int">
+	    delete from LT_NOTICE
+		where LT_NO=#{delLecNo}
+	</delete>
+	<delete id="a_delTimes" parameterType="int">
+	    delete from LT_TIMES
+		where LT_NO=#{delLecNo}
+	</delete>
+	<delete id="a_delLecture" parameterType="int">
+	    delete from LECTURES
+		where LT_NO=#{delLecNo}
+	</delete>
+	<!-- 관리자의 개인정보 가져오는 쿼리 -->
+	<!-- <select id="getAdmin" resultType="admin" >
+		select 
+			ADMIN_NAME as a_name,
+			ADMIN_ID as a_id,
+			ADMIN_PH as a_ph,
+			ADMIN_EMAIL as a_email,
+			ADMIN_GROUP as a_group
+		from ADMINS
+		where ADMIN_ID=#{id}
+	</select> -->
+	
+</mapper>

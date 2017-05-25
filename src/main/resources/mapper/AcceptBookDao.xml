@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.AcceptPageDao">
+
+	<!-- 수락화면에서 보여줄 신청자의 정보 -->	
+	<select id="applicantInfo" parameterType="int" resultType="applicantInfo">
+	
+		SELECT
+			m.Mem_No as memNo,
+			m.ID as id,
+			m.Name as name,
+			m.Addr1 as addr1,
+			m.Addr2 as addr2,
+			m.Zipcode as zipCode,
+			m.Pho_No as phoNo,
+			m.Email as email,
+			m.Point as point,
+			m.Photo_Url as photoUrl,
+			l.Apply_Date as applyDate,
+			l.Apply_No as applyNo
+		FROM
+			MEMBER m,
+			LEND l
+		WHERE
+			l.Mem_No=m.Mem_No
+		AND
+			l.Apply_No=#{applyNo}
+
+	</select>
+	
+	<!-- 신청된 책에 대해 수락을 할 때 LEDN 테이블에 수락 날짜와 신청 상태 코드가 2로 업데이트 -->
+	<update id="applicantConfirm" parameterType="int">
+	
+		update
+			LEND
+		set
+			Assign_Date=now(), Apply_Status_Code='2'
+		where
+			Apply_No=#{applyNo}
+			
+	</update>
+	
+	<!-- 수락을 하면 발송 준비중이 되므로 발송 준비 중 코드가 있는 DELIVER 테이블에 db를 생성해줘야한다.
+	지금은 코드값인 1번과 applyNo만 들어가있다. 실제 발송이 행해지면 업데이트로 추가 -->
+	<insert id="deliveryReadyState" parameterType="int">
+	
+		insert into 
+			DELIVERY
+			(
+				Del_Code, Apply_No
+			)
+		values (
+			1, #{applyNo}
+		)
+			
+	</insert>
+	
+	<!-- 신청된 책을 수락시 대여 불가능 코드로 업데이트(Rental_Status = 2) -->
+	<update id="rentalStatusN" parameterType="map">
+	
+		update
+			PERSONAL_LIBRARY
+		<set>
+			<if test="regCode==2">Rental_Status = '4'</if>
+			<if test="regCode==1">Rental_Status = '2'</if>
+		</set>
+		where
+			Pers_Book_No = 
+		(
+			select
+				l.Pers_Book_No
+			from
+				LEND l
+			where
+				l.Apply_No = #{applyNo}
+		);
+			
+	</update>
+	
+	<!-- 신청에 대해 거부를 하는 경우 거부 날짜와 거부됐다는 코드인 3번으로 업데이트(LEND 테이블에 업데이트 된다) -->
+	<update id="applicantDeny" parameterType="int">
+	
+		update
+			LEND
+		set
+			Reject_Date=now(), Apply_Status_Code='3'
+		where
+			Apply_No=#{applyNo}
+			
+	</update>
+	
+</mapper>

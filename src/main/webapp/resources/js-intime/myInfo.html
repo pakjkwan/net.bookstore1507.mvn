@@ -1,0 +1,37 @@
+<div id='infoForm' >
+	<form action='' method='post'>
+		<fieldset class='step'>
+			<legend>내 정보</legend>
+			<p>
+				<label for='name'>이름</label>
+				<input id='name' name='name' readonly="readonly">
+			</p>
+			<p>
+				<label for='id'>아이디</label>
+				<input id='id' name='id' readonly="readonly">
+			</p>
+			<p>
+				<label for='tel'>Tel</label>
+				<input id='tel' name='tel' readonly="readonly">
+			</p>
+			<p>
+				<label for="email">Email</label>
+				<input id="email" name="email" type="email" readonly="readonly" >
+			</p>
+			<p>
+				<label for='group'>소속(기관)명</label>
+				<input id='group' name='group' readonly="readonly">
+			</p>
+			 
+			 <input id="btnInfoConfirm" type="button" value="변경">
+			 <input id="btnDel" type="button" value="계정탈퇴">
+			 <input id="btnInfoCancle" type="button" value="취소">
+		</fieldset>
+	</form>
+	
+	
+		<script>
+		     myInfo.init();
+		</script>
+		
+	</div>

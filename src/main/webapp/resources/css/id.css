@@ -1,0 +1,133 @@
+@CHARSET "UTF-8";
+#boardContent #leftSnb{
+	display:inline-block;
+	width:20%;
+	text-align:center;
+	vertical-align:top;
+	min-height:150px;
+}
+#boardContent #rightContent{
+	display:inline-block;
+	width:75%;
+	min-height: 600px;
+}
+#footer{margin-top:-1.9em;height:1.9em}
+#frmAdmin table tr{height: 50px;width : 100%;text-align :center;}
+#frmAdmin th{border : 1px solid black;height: 50px;}
+	
+
+#header{width:100%;position:relative;z-index:20;}
+#top div{display:inline;}
+#rightContent table{
+	font-family: "돋움";
+	font-size: 15px;
+	color: #333;
+	
+	border-collapse: collapse;
+	border-top: 2px solid #333;
+	border-bottom: 2px solid #333;
+	width: 100%; 
+	text-align: center;
+	
+}
+
+
+#rightContent table th,td{
+	margin: 0;
+	padding: 8px;
+}
+
+#rightContent table th{
+	background-color: #999;
+	color: #e4e4e4; /* gray */
+	border-bottom-width: 2px; /* 하단 테두리 두께*/
+	border-bottom-style: solid; /* 하단부 스타일은 실선 표시 */
+	border-bottom-color: #000; 
+	font-size: 15px;
+}
+#rightContent table td{
+	border-bottom-width: 1px; /* 하단 테두리 두께*/
+	border-bottom-style: dotted; /* 하단부 스타일은 점선 표시 */
+	border:1px solid black;
+	border-bottom-color: #666; 
+}
+
+
+#reservationContent{
+		
+}
+
+#reservationContent .leftSnb{
+	display:inline-block;
+	width:20%;
+	min-height:150px;
+	vertical-align:top;
+	text-align:center;
+}
+
+#reservationContent .rightContent{
+	display:inline-block;
+	width:75%;
+	text-align:center;
+	
+}
+#wrap{
+	width: 99%;
+	min-height: 100%;
+	height : 100%;
+	margin: 0 auto;
+	margin-right: auto; /* 환경에 맞게 자동 설정 */
+	margin-left: auto;
+	/* background-repeat: repeat-y; */
+	/* 만약 배경 이미지가 작으면 이미지 반복으로 채운다 */
+/* 	모니터에 따라 신축성 있게 헤더가 축소되지만 최소한 750px은 유지하고
+	그 이하가 되면 이미지가 잘리도록 하겠다. */
+	
+}
+#top{
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+#logo{
+	float: left;
+	margin: 40px 0 0 40px ;
+	width: 270px;
+}
+#login{
+	float: right;
+	margin: 20px 60px 0 0 ;
+	font-family: Arial, Helvetica, sans-serif;
+	/* font-size: 12px; */
+	word-spacing: 5px;
+}
+#login a{
+	text-decoration: none;
+	color: #333;
+}
+#login a:hover{
+	color: #F90;
+}
+nav#topMenu{
+	width: 99%;
+	margin: 20px 20px 0 0;
+	float: right;
+}
+nav#topMenu ul{
+	list-style: none;
+	font-family: Arial, Helvetica, sans-serif;
+/* 	font-size: 13px; */
+	font-weight: 100;
+	color: #333;
+}
+nav#topMenu ul li{
+	float: left;
+	margin: 0 5px;
+}
+nav#topMenu a{
+	display: block;
+	height: 20px;
+	padding: 10px;
+	text-decoration: none;
+	color: #333;
+}

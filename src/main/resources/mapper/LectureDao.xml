@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.intime.java33.dao.LectureDao">
+
+	<!-- cw 강좌 공지사항 FIFO 데이터처리 -->
+	<!-- 받아온 강좌번호로 그 강좌의 공지사항을 찾고 -->
+	<!-- 오름차순 정렬을 한후 -->
+	<!-- 데이터1개의 제한을 두어 맨윗데이터만 삭제 -->
+	<delete id="delNotice" parameterType="int">
+		delete from lt_notice where
+		lt_no= #{l_no} order by notice_no limit 1 ;
+	</delete>
+
+	<!-- cw 강좌 공지갯수 카운트, 받아온 강좌번호로 그강좌에 등록된 공지사항 갯수를 카운트하여 리턴 -->
+	<select id="noticeCount" parameterType="int" resultType="int">
+		select
+		count(*) from lt_notice where LT_NO=#{l_no};
+	</select>
+
+
+	<!-- cw 학생 노티피케이션에 필요한 강좌정보를 가져온다(강좌명, 시작시간, 요일) -->
+	<select id="noti" parameterType="map" resultType="lecture">
+		select
+		l.lt_no
+		as l_no,
+		lt_name as l_name,
+		lt_date as l_date,
+		time_to_sec(lt_s_time) as l_s_time
+		from (st_lec_reg_check as s inner join lt_times as l
+		on
+		s.lt_no=l.lt_no) inner join lectures as lt
+		on s.lt_no=lt.lt_no
+		where
+		st_email=#{s_email} and lt_date=#{today};
+	</select>
+
+	<!-- cw 강사 노티피케이션에 필요한 강좌정보를 가져온다(강좌명, 시작시간, 요일) -->
+	<select id="t_noti" parameterType="map" resultType="lecture">
+		select
+		l.lt_no as l_no, 
+		lt_name as l_name, 
+		lt_date as l_date, 
+		time_to_sec(lt_s_time) as l_s_time
+		from
+		lectures as l inner join lt_times as t
+		on l.lt_no=t.lt_no
+		where tch_email=#{t_email} and lt_date=#{today};
+	</select>
+
+	<!-- cw 강좌 공지사항 등록 -->
+	<insert id="addNotice" parameterType="map">
+		insert into
+		LT_NOTICE(NOTICE_CONTENT, LT_NO)
+		values(#{n_content}, #{l_no});
+	</insert>
+
+
+
+
+	<!-- cw 강좌 On/Off 처리, 받아온 맵객체에 3개의 키값을 꺼내서 업데이트 -->
+	<update id="t_regStudent" parameterType="map">
+		update LECTURES set
+		ST_REG_ONOFF = #{regStat}
+		where TCH_EMAIL=#{t_email} and LT_NO=#{l_no};
+	</update>
+
+
+	<!-- 강사가 강좌 학생 목록출력, 3개의 테이블을 조인하여 필요한 데이터를 가져옴 -->
+	<select id="getAttendSt" parameterType="map" resultType="attend">
+		select
+		AT_NO as a_no,
+		ST_NAME as a_name,
+		AT_DAY as a_days,
+		AT_STATUS as
+		a_status,
+		LT_NAME as a_l_name,
+		s.ST_EMAIL as a_email,
+		s.ST_ADDR as
+		a_addr,
+		s.ST_PICTURE as
+		a_picture,
+		s.ST_PH as a_ph
+		from (students as s
+		left join attend as a
+		on
+		s.st_email = a.st_email) left join lectures as
+		l
+		on a.lt_no = l.lt_no
+		where AT_DAY= #{l_day} and a.LT_NO = #{l_no} and
+		TCH_EMAIL=
+		#{t_email};
+	</select>
+
+
+	<!-- cw 스크롤 박스에 선택된 과목번호를 받아오는 Dao -->
+	<!-- 과목객체를 넘겨주고 lecture -->
+	<select id="getSubjectNo" parameterType="string" resultType="lecture">
+		select
+		LT_NO as l_no,
+		LT_S_DAY as l_s_day,
+		LT_E_DAY as l_e_day
+		from
+		LECTURES
+		where LT_NAME=#{lecture}
+	</select>
+
+
+
+	<!-- cw 강사이메일값을 받아와서 해당하는 강사강좌리스트를 DB로부터 받아옴. -->
+	<select id="getLecture" parameterType="string" resultType="map">
+		select
+		LT_NO as l_no,
+		LT_NAME as l_name,
+		LT_ROOM as l_room,
+		LT_S_DAY as
+		l_s_day,
+		LT_E_DAY as l_e_day,
+		LT_NFC_NUM as l_nfc_num,
+		ST_REG_ONOFF as
+		s_reg_onoff,
+		ADMIN_GROUP as l_a_group
+
+		from LECTURES as l inner join
+		admins as a
+		on l.ADMIN_ID = a.ADMIN_ID
+		where
+		TCH_EMAIL=#{t_email}
+	</select>
+
+
+	<!-- cw 넘겨받은 강좌번호로 그 강좌에 대한 요일과 시간을 받아서 배열로 넘긴다 -->
+	<select id="getLectureTime" parameterType="int" resultType="map">
+		select
+		LT_DATE as l_date,
+		LT_S_TIME as l_s_time,
+		LT_E_TIME as l_e_time
+		from lectures as
+		l inner join lt_times as t
+		on l.lt_no = t.lt_no
+		where
+		l.lt_no = #{l_no};
+	</select>
+
+
+	<!-- cw 넘겨받은 강좌번호로 그 강좌에 대한 공지사항 내용을 배열로 넘긴다 -->
+	<select id="getNotice" parameterType="int" resultType="map">
+		select
+		NOTICE_CONTENT as n_content
+		from LT_NOTICE
+		where LT_NO=#{l_no}
+	</select>
+
+
+	<!-- 로그인후 session에 담겨있는 학생의 email정보로 그 학생이 등록되 있는 강좌의 정보를 가져오기 -->
+	<select id="getStudentLectureList" parameterType="string"
+		resultType="lecture">
+		select
+		l.LT_NO as l_no,
+		LT_NAME as l_name,
+		LT_ROOM as l_room,
+		LT_S_DAY as l_s_day,
+		LT_E_DAY as l_e_day,
+		LT_NFC_NUM as l_nfc_num,
+		ST_REG_ONOFF as s_reg_onoff
+		from lectures as l, st_lec_reg_check as s
+		where l.LT_NO
+		= s.LT_NO
+		and ST_EMAIL=#{s_email}
+	</select>
+
+	<!-- 강좌리스트 타이틀에 표시될 강사 이름값 가져오기 -->
+	<select id="getTeacherName" parameterType="int" resultType="teacher">
+		select
+		TCH_NAME as t_name
+		from lectures l, teachers t
+		where l.TCH_EMAIL =
+		t.TCH_EMAIL
+		and LT_NO=#{l_no}
+	</select>
+
+	<!-- 강좌리스트에서 강좌 시작시간 종료시간 가져오기 -->
+	<select id="getStudentLectureTime" parameterType="int"
+		resultType="lecture">
+		select
+		l.LT_NO as l_no,
+		LT_DATE as l_date,
+		LT_S_TIME as
+		l_s_time,
+		LT_E_TIME as l_e_time
+		from lectures l,lt_times t
+		where l.LT_NO
+		= t.LT_NO
+		and
+		l.LT_NO=#{l_no}
+	</select>
+
+	<!-- 강좌리스트에서 공지사항 가져오기 -->
+	<select id="getContent" parameterType="int" resultType="map">
+		select
+		NOTICE_CONTENT as n_content
+		from lt_notice as n inner join lectures as
+		l
+		on n.LT_NO = l.LT_NO
+		where l.LT_NO=#{l_no}
+	</select>
+
+	<!-- 출석상태 '출석'인 경우의 모든 attend객체 가져오기 -->
+	<select id="getAttend" parameterType="map" resultType="attend">
+		select
+		AT_STATUS as a_status
+		from attend
+		where LT_NO=#{l_no} and
+		ST_EMAIL=#{s_email} and AT_STATUS='출석'
+	</select>
+
+	<!-- 출석상태 '지각'인 경우의 모든 attend객체 가져오기 -->
+	<select id="getLateness" parameterType="map" resultType="attend">
+		select
+		AT_STATUS as a_status
+		from attend
+		where LT_NO=#{l_no} and
+		ST_EMAIL=#{s_email} and AT_STATUS='지각'
+	</select>
+
+	<!-- 출석상태 '결석'인 경우의 모든 attend객체 가져오기 -->
+	<select id="getAbsence" parameterType="map" resultType="attend">
+		select
+		AT_STATUS as a_status
+		from attend
+		where LT_NO=#{l_no} and
+		ST_EMAIL=#{s_email} and AT_STATUS='결석'
+	</select>
+
+	<!-- 학생 출결관리 출결 상태 가져오기 -->
+	<select id="getSubject" parameterType="string" resultType="lecture">
+		select
+		l.LT_NO as l_no,
+		LT_NAME as l_name
+		from st_lec_reg_check as c
+		inner join lectures as l
+		on c.LT_NO = l.LT_NO
+		where
+		c.ST_EMAIL=#{s_email};
+	</select>
+
+	<!-- 학생 출결관리 강좌 이름으로 강좌 번호 가져오기 -->
+	<select id="getStdSubjectNo" parameterType="string" resultType="lecture">
+		select
+		LT_NO as l_no
+		from lectures
+		where LT_NAME=#{l_name};
+	</select>
+
+	<!-- 학생 출결관리 모두 전체선택일 경우 출셜 상태 가져오기 -->
+	<select id="getAttendAll" parameterType="map" resultType="attend">
+		select
+		AT_DAY as a_day,
+		AT_STATUS as a_status,
+		l.LT_NAME as a_l_name
+		from
+		(st_lec_reg_check as c inner join attend as a
+		on
+		c.LT_NO = a.LT_NO)
+		inner join lectures as l
+		on c.LT_NO = l.LT_NO
+		where
+		c.ST_EMAIL=a.ST_EMAIL
+		and c.ST_EMAIL=#{s_email}
+	</select>
+
+	<!-- 학생 출결관리 과목 전체선택일 경우 출셜 상태 가져오기 -->
+	<select id="getAttendSubAll" parameterType="map" resultType="attend">
+		select
+		AT_DAY as a_day,
+		AT_STATUS as a_status,
+		l.LT_NAME as a_l_name
+		from
+		(st_lec_reg_check as c inner join attend as a
+		on
+		c.LT_NO = a.LT_NO)
+		inner join lectures as l
+		on c.LT_NO = l.LT_NO
+		where
+		c.ST_EMAIL=a.ST_EMAIL
+		and c.ST_EMAIL=#{s_email} and a.AT_DAY = #{a_day}
+	</select>
+
+	<!-- 학생 출결관리 날짜 전체선택일 경우 출셜 상태 가져오기 -->
+	<select id="getAttendDateAll" parameterType="map" resultType="attend">
+		select
+		AT_DAY as a_day,
+		AT_STATUS as a_status,
+		l.LT_NAME as a_l_name
+		from
+		(st_lec_reg_check as c inner join attend as a
+		on
+		c.LT_NO = a.LT_NO)
+		inner join lectures as l
+		on c.LT_NO = l.LT_NO
+		where
+		c.ST_EMAIL=a.ST_EMAIL
+		and c.ST_EMAIL=#{s_email} and c.LT_NO= #{l_no}
+	</select>
+
+	<!-- 학생 출결관리 출결 상태 가져오기 -->
+	<select id="getAttendStatus" parameterType="map" resultType="attend">
+		select
+		AT_DAY as a_day,
+		AT_STATUS as a_status,
+		l.LT_NAME as a_l_name
+		from
+		(st_lec_reg_check as c inner join attend as a
+		on
+		c.LT_NO = a.LT_NO)
+		inner join lectures as l
+		on c.LT_NO = l.LT_NO
+		where
+		c.ST_EMAIL=a.ST_EMAIL
+		and c.ST_EMAIL=#{s_email} and c.LT_NO= #{l_no}
+		and a.AT_DAY = #{a_day}
+	</select>
+	<!-- *** PARK JONG SOO *** -->
+	<insert id="registLecture" parameterType="lecture" keyProperty="l_no"
+		keyColumn="LT_NO" useGeneratedKeys="true">
+		insert into
+		LECTURES(LT_NAME,LT_ROOM,LT_S_DAY,LT_E_DAY,ADMIN_ID)
+		values(#{l_name},
+		#{l_room}, #{l_s_day},#{l_e_day},#{a_id})
+	</insert>
+	<update id="a_changeLecture" parameterType="lecture">
+		update LECTURES set
+		LT_NAME=#{l_name},
+		LT_ROOM=#{l_room},
+		LT_S_DAY=#{l_s_day},
+		LT_E_DAY=#{l_e_day},
+		ADMIN_ID=#{a_id}
+		where LT_NO=#{l_no}
+	</update>
+	<delete id="a_removeLecture" parameterType="int">
+		delete from LECTURES
+		where LT_NO=#{l_no}
+	</delete>
+	<delete id="a_removeAttend" parameterType="int">
+	    delete from ATTEND
+		where LT_NO=#{l_no}
+	</delete>
+	<delete id="a_removeNotice" parameterType="int">
+		delete from LT_NOTICE
+		where LT_NO=#{l_no}
+	</delete>
+	<delete id="a_deleteAllTime" parameterType="int">
+		delete from LT_TIMES
+		where LT_NO=#{l_no}
+	</delete>
+	<delete id="a_deleteStudent" parameterType="int">
+		delete
+		from
+		ST_LEC_REG_CHECK
+		where LT_NO=#{value}
+	</delete>
+	<update id="a_addTeacher" parameterType="map">
+		update LECTURES set
+		TCH_EMAIL=#{t_email}
+		where LT_NO=#{l_no}
+	</update>
+	<update id="a_updateTeacher" parameterType="map">
+		update LECTURES set
+		TCH_EMAIL=#{t_email}
+		where LT_NO=#{l_no}
+	</update>
+	<insert id="addLectureTime" parameterType="map" keyProperty="l_time_no"
+		keyColumn="LT_TIME_NO" useGeneratedKeys="true">
+		insert into
+		LT_TIMES(LT_NO,LT_DATE,LT_S_TIME,LT_E_TIME)
+		values(#{l_no}, #{l_date},
+		#{l_s_time},#{l_e_time})
+	</insert>
+
+	<select id="a_getLectureTime" parameterType="int" resultType="map">
+		select
+		LT_TIME_NO as l_t_no,
+		LT_DATE as l_date,
+		LT_S_TIME as l_s_time,
+		LT_E_TIME as l_e_time
+		from LT_TIMES
+		where LT_NO=#{l_no}
+	</select>
+
+	<select id="a_searchTeacher" parameterType="string" resultType="teacher">
+		select
+		TCH_NAME as t_name,
+		TCH_PH as t_ph,
+		TCH_EMAIL as t_email,
+		TCH_ADDR
+		as t_addr,
+		TCH_PICTURE as t_picture
+		from TEACHERS
+		where
+		TCH_NAME=#{t_name}
+		<!-- where TCH_EMAIL=#{t_email} -->
+	</select>
+
+	<select id="a_updateLecture" parameterType="int" resultType="lecture">
+		select
+		LT_NO as l_no
+		, LT_NAME as l_name
+		, LT_ROOM as l_room
+		, LT_S_DAY as
+		l_s_day
+		, LT_E_DAY as l_e_day
+		from
+		LECTURES
+		where
+		LT_NO=#{value}
+	</select>
+
+	<select id="a_getLecture" parameterType="string" resultType="lecture">
+		select
+		LT_NO as l_no
+		, LT_NAME as l_name
+		, LT_ROOM as l_room
+		, LT_S_DAY as
+		l_s_day
+		, LT_E_DAY as l_e_day
+		, ADMIN_ID as a_id
+		, TCH_EMAIL as t_email
+		from
+		LECTURES
+		where
+		ADMIN_ID=#{value}
+	</select>
+	<select id="l_getInfoLecture" parameterType="int" resultType="lecture">
+		select
+		LT_NO as l_no,
+		LT_NAME as l_name,
+		LT_ROOM as l_room,
+		LT_S_DAY as
+		l_s_day,
+		LT_E_DAY as l_e_day,
+		LT_NFC_NUM as l_nfc_num,
+		ST_REG_ONOFF as
+		s_reg_onoff,
+		ADMIN_GROUP as l_a_group
+
+		from LECTURES as l inner join
+		admins as a
+		on l.ADMIN_ID = a.ADMIN_ID
+		where
+		LT_NO=#{l_no}
+	</select>
+	<select id="a_stuCount" parameterType="int" resultType="int">
+		select
+		count(*)
+		from
+		ST_LEC_REG_CHECK
+		where LT_NO=#{l_no}
+	</select>
+	<select id="a_lecTchName" parameterType="string" resultType="string">
+		select
+		TCH_NAME as t_name
+		from
+		TEACHERS
+		where TCH_EMAIL=#{t_mail}
+	</select>
+	<select id="a_autoSearchTeacher" resultType="teacher">
+		select
+		TCH_EMAIL as
+		t_email,
+		TCH_NAME as t_name,
+		TCH_PH as t_ph,
+		TCH_PICTURE as t_picture,
+		TCH_ADDR as t_addr
+		from TEACHERS
+	</select>
+</mapper>
+

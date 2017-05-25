@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.MemberDao">
+	
+	<select id="getMember" parameterType="string" resultType="member" >
+		select
+			Mem_No as memNo, 
+			ID as id,
+			Name as name,
+			Addr1 as addr1,
+			Addr2 as addr2,
+			Zipcode as zipCode,
+			Email as email,
+			Pho_No as phoNo,
+			Photo_Url as photoUrl,
+			Point as point,
+			Reg_Date as regDate,
+			Admin as admin
+		from MEMBER
+		where ID=#{id}
+	</select>
+	
+	<select id="existsMember"  parameterType="map" resultType="member">
+		select 
+			Mem_No as memNo, 
+			ID as id,
+			Name as name,
+			Addr1 as addr1,
+			Addr2 as addr2,
+			Zipcode as zipCode,
+			Email as email,
+			Pho_No as phoNo,
+			Photo_Url as photoUrl,
+			Point as point,
+			Admin as admin
+		from
+			MEMBER
+		where
+			ID=#{id}
+		and
+			PASSWORD=#{password}
+	</select>
+			
+	
+	<insert id="addMember" parameterType="member">
+		insert into MEMBER( 
+			Name,Addr1,Addr2,Pho_No,Email,ID,Zipcode,Password,Reg_Date, Photo_Url, Point)
+		values(
+			#{name}, #{addr1},#{addr2},#{phoNo},#{email},#{id},#{zipCode},#{password},now(),'nuxwizard_profile_picture.gif', 300
+			);
+	</insert>
+	
+	<select id="getMemberList" parameterType="map" resultType="member" >
+		select 
+			ID,Name,Email,Reg_Date,Addr1,Addr2, Zipcode
+		from MEMBER
+		order by Reg_Date DESC
+		limit #{pageStartIndex}, #{pageSize}
+	</select>
+	
+	<select id="size" resultType="int" >
+	
+		select
+			count(*)
+		from
+			MEMBER
+			
+	</select>
+	
+	<select id="getMembers" parameterType="int" resultType="Member">
+		select
+			Mem_No as memNo,
+			Addr1 as addr1,
+			Addr2 as addr2,
+			Admin as admin,
+			Pho_No as phoNo,
+			Email as email,
+			ID as id,
+			Point as point
+		from MEMBER
+		where Mem_No=#{memNo}
+	</select>
+	
+	<!-- 책 등록시 포인트 추가 -->
+	<update id="pointUpdate" parameterType="Map">
+	
+		UPDATE
+			MEMBER
+		SET
+			Point = Point + #{point}
+		Where
+			Mem_No=#{memNo}
+		
+	</update>
+	
+	<!-- 도서 신청시 포인트 차감 / 포인트 양도시 자신의 포인트 차감-->
+	<update id="minusPoint" parameterType="map">
+	
+		update
+			MEMBER
+		set
+			Point=#{point}
+		where
+			Mem_No=#{memNo}
+			
+	</update>
+	
+	<!-- 포인트 양도시 친구에게 포인트 추가 -->
+	<update id="grantPoint" parameterType="map">
+	
+		UPDATE
+			MEMBER
+		SET
+			Point = Point + #{toPoint}
+		Where
+			ID=#{toUser}
+			
+	</update>
+		
+	<!-- 거부시 신청자에게 포인트 반환 -->
+	<update id='retrievePoint' parameterType='map'>
+		update
+			MEMBER
+		set
+			Point=#{point}
+		where
+			Mem_No=#{memNo}
+	</update>
+	
+	<!-- 회원정보 변경 -->
+	<update id="updateMember" parameterType="member">
+		update MEMBER set
+			Password = #{password},
+			Email = #{email},
+			Pho_No = #{phoNo},
+			Zipcode = #{zipCode},
+			Addr1 = #{addr1},
+			Addr2 = #{addr2}
+		where ID = #{id}
+	</update>
+	
+	<!-- 프로필 이미지 업로드 정보 변경에서만 가능하므로 insert가 아니라 update-->
+	<update id="imgUpload" parameterType="member">
+		update
+			MEMBER 
+		set
+			Photo_Url = #{photoUrl}
+		where
+			ID = #{id}
+	</update>
+	
+	<select id="getAllMemberId"  resultType="member">
+	
+		select
+			ID 
+		from
+			MEMBER
+	    
+	</select>
+	
+	<select id="checkDuplId" parameterType="string" resultType="member">
+	    select
+	    	ID as id
+	    from MEMBER
+	    where ID=#{memberId}
+	</select>
+	
+</mapper>

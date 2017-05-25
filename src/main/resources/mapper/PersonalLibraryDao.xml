@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.PersonalLibraryDao">
+
+	<!-- 두개 분류 화면 -->
+	<select id="myLibraries" parameterType="map" resultType="personalLibrary">
+	
+		select
+			pl1.Mem_No as memNo,
+			pl1.Reg_Code as regCode,
+			pl1.ISBN as isbn,
+			pl1.Rental_Status as rentalStatus,
+			b1.Title as title,
+			b1.Author as author,
+			b1.Price as price,
+			b1.Pub_Date as pubDate,
+			b1.Pub as pub,
+			b1.Trans as trans,
+			b1.Type_Code as typeCode,
+			b1.Category as category,
+			b1.Reg_Date as regDate,
+			b1.Book_Img_Url as bookImgUrl,
+			pl1.Donation_No as doNo
+		from 
+			PERSONAL_LIBRARY pl1, BOOK b1
+		where
+			pl1.ISBN=b1.ISBN
+		AND
+			pl1.Mem_No=#{memNo}
+		AND
+			pl1.Reg_Code=#{regCode}
+		order by
+			pl1.Pers_Book_No DESC
+		limit
+			#{pageStartNo},#{pageSize}
+			
+	</select>
+
+	<!-- 두개 분류 화면 카운트 -->
+	<select id="bookCount" parameterType="string" resultType="int">
+	
+		select
+			count(*)
+		from
+			PERSONAL_LIBRARY
+		where
+			Reg_Code=#{regCode}
+			
+	</select>
+	
+	<!-- 개인도서 목록에 정보 등록 -->
+	<insert id="addMyBookInfo" parameterType="map">
+	
+		insert into
+			PERSONAL_LIBRARY(
+				Mem_No, ISBN, Reg_Code
+				)
+		value(
+			#{memNo}, #{isbn}, #{regCode}
+			)
+			
+	</insert>
+	
+	<!-- 개인도서 목록에 정보 기록후 DONATION 테이블에 정보 기입 -->
+	<insert id="addDonation" parameterType="int">
+	
+		insert into
+			DONATION(Pers_Book_No)
+		select
+			pl.Pers_Book_No
+		from
+			PERSONAL_LIBRARY pl
+		where
+			pl.Mem_No=#{memNo}
+		order by 
+			Pers_Book_No DESC
+		limit
+			0,1
+			
+	</insert>
+	
+	
+	<!-- 개인도서 목록에 기부받은 책 정보 등록 -->
+	<insert id="donatedBook" parameterType="map">
+	
+		insert into
+			PERSONAL_LIBRARY(Mem_No, ISBN, Reg_Code, Rental_Status, Donation_No) 
+		values
+			(#{memNo}, #{isbn}, '2', '3', (select ifnull(pl.Donation_No, (
+											select
+												don.Donation_No
+											from
+												LEND l, PERSONAL_LIBRARY pl, DELIVERY d, DONATION don
+											where
+												d.Del_No = #{delNo}
+											and
+												d.Apply_No = l.Apply_No
+											and
+												l.Pers_Book_No = pl.Pers_Book_No
+											and
+												pl.Pers_Book_No = don.Pers_Book_No
+											)
+										) as donationNo
+										from
+											LEND l, PERSONAL_LIBRARY pl, DELIVERY d, DONATION don
+										where
+											d.Del_No = #{delNo}
+										and
+											d.Apply_No = l.Apply_No
+										and
+											l.Pers_Book_No = pl.Pers_Book_No
+										group by 
+											(pl.Pers_Book_No))
+			);
+			
+	</insert>
+	
+	
+
+	<!-- 내서재 초기 화면 -->
+	<select id="myLibraryAll" parameterType="map" resultType="personalLibrary">
+		select
+			pl1.Mem_No as memNo,
+			pl1.Reg_Code as regCode,
+			pl1.ISBN as isbn,
+			pl1.Rental_Status as rentalStatus,
+			pl1.Pers_Book_No as persBookNo,
+			b1.Title as title,
+			b1.Author as author,
+			b1.Price as price,
+			b1.Pub_Date as pubDate,
+			b1.Pub as pub,
+			b1.Trans as trans,
+			b1.Type_Code as typeCode,
+			b1.Category as category,
+			b1.Reg_Date as regDate,
+			b1.Book_Img_Url as bookImgUrl,
+			pl1.Donation_No as doNo
+		from 
+			PERSONAL_LIBRARY pl1, BOOK b1
+		where
+			pl1.ISBN=b1.ISBN
+		AND 
+			pl1.mem_No= #{memNo}
+		order by
+			Pers_Book_No DESC
+		limit
+			#{pageStartNo},#{pageSize}
+	</select>
+	
+	<!-- 내서재 초기화면 카운트 -->
+	<select id="bookAllCount" resultType="int">
+	
+		select
+			count(*)
+		from
+			PERSONAL_LIBRARY
+	</select>
+
+	<!-- 로그인한 사람의 책 정보 및 빌려간사람의 정보 -->
+	<select id="donationInfo" parameterType="map" resultType="MyLibrary">
+		
+		
+			select
+				m.Addr1 as addr1
+			from
+				(select * from PERSONAL_LIBRARY where Donation_No=
+				(select Donation_No from DONATION where Pers_Book_No=#{persBookNo}))x
+			left join
+				LEND l
+			on
+				x.Pers_Book_No=l.Pers_Book_No
+			left join
+				MEMBER m
+			on
+				l.Mem_No=m.Mem_No
+			where
+				m.addr1 is not null
+			limit
+ 				#{pageStartNo},#{pageSize}
+		
+<!-- 		select  -->
+<!-- 			m.Addr1 as addr1 -->
+<!-- 		from  -->
+<!-- 			PERSONAL_LIBRARY pl -->
+<!-- 		LEFT OUTER JOIN  -->
+<!-- 			DONATION d -->
+<!-- 		ON  -->
+<!-- 			pl.Donation_No = d.Donation_No -->
+<!-- 		LEFT OUTER JOIN -->
+<!-- 			LEND l -->
+<!-- 		ON -->
+<!-- 			pl.Mem_No = l.Mem_No -->
+<!-- 		LEFT OUTER JOIN -->
+<!-- 			MEMBER m -->
+<!-- 		ON -->
+<!-- 			l.Mem_No = m.Mem_No -->
+<!-- 		where -->
+<!-- 			d.Pers_Book_No = #{persBookNo} -->
+<!-- 		group by (m.Addr1) -->
+<!-- 		order by -->
+<!-- 			l.Apply_No -->
+<!-- 		limit -->
+<!-- 			#{pageStartNo},#{pageSize} -->
+			
+	</select>
+	
+	<select id="lenderInfo" parameterType="map" resultType="map">
+		
+		select
+			m.ID as id,
+			m.Addr1 as addr1
+		from
+			MEMBER m, LEND l
+		where
+			l.Pers_Book_No=#{persBookNo}
+		and
+			l.Mem_No=m.Mem_No
+		limit
+			#{pageStartNo}, #{pageSize}
+		
+	</select>
+	
+	<select id="size" parameterType="int" resultType="int">
+		
+		select
+			count(l.Apply_No)
+		from
+			MEMBER m, LEND l
+		where
+			l.Pers_Book_No=#{persBookNo}
+		and
+			l.Mem_No=m.Mem_No
+		
+	</select>
+	
+</mapper>

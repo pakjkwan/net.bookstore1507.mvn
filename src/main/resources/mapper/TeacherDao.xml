@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.intime.java33.dao.TeacherDao">
+    <!-- 강사의 이메일이 FK로 걸려있는 테이블을 차례로 삭제 -->
+    <delete id="deleteAccountStep1" parameterType="map">
+        delete from lt_notice
+        where lt_no = #{l_no};
+    </delete>
+    
+    <delete id="deleteAccountStep2" parameterType="map">
+        delete from lt_times
+        where lt_no = #{l_no};
+    </delete>
+    
+    <delete id="deleteAccountStep3" parameterType="map">
+        delete from attend
+        where lt_no = #{l_no};
+    </delete>
+    
+    <delete id="deleteAccountStep4" parameterType="map">
+        delete from st_lec_reg_check
+        where lt_no = #{l_no};
+    </delete>
+    
+    <delete id="deleteAccountStep5" parameterType="map">
+        delete from lectures
+        where tch_email=#{t_email};
+    </delete>
+    
+    <!-- 최종 계정 삭제 -->
+    <delete id="deleteAccountStep6" parameterType="map">
+        delete from teachers
+        where tch_email = #{t_email};
+    </delete>
+    
+    <!-- 강사에게 해당되는 강좌목록이 있는지 확인, 해당하는 강좌의 번호를 전부 return-->
+    <select id="existDelete" parameterType="string" resultType="map">
+        select
+        lt_no as l_no 
+        from lectures
+        where tch_email = #{t_email};
+    </select>
+    
+    <!-- 강좌에 참석하지 않은 학생들을 결석처리 -->
+    <update id="existStep2" parameterType="map">
+      update attend set AT_STATUS=#{a_status}, AT_TAG_STAT=2
+      where AT_NO=#{a_no};
+    </update>
+    
+    <!-- //강좌에 존재하는 학생이 출결테이블에 존재하지않을 경우 학생정보를 출결테이블에 insert -->
+     <insert id="existStep3" parameterType="map">
+        insert into attend(ST_EMAIL, lt_no, AT_day, AT_STATUS, AT_TAG_STAT)
+        values(#{s_email}, #{l_no}, current_date(), #{a_stat}, #{a_tag_stat});
+    </insert>
+    
+    <!-- 학생의 출결정보 존재 유무를 판단 -->
+    <!-- 존재할 경우 학생의 이메일과 그 강좌 넘버를 select -->
+    <select id="existStep1" parameterType="map" resultType="attend">
+        select 
+        ST_EMAIL as a_email,
+        AT_NO as a_no,
+        LT_NO as a_l_no,
+        AT_STATUS as a_status
+        from attend
+        where ST_EMAIL = #{s_email} and lt_no=#{l_no} and at_day = current_date();
+    </select>
+    
+    <!-- 조회한 강사 오늘 수업에 등록된 학생들의 목록과 시작시간,종료시간을 select-->
+    <!-- 데이터를 요청한 현재시간도 같이 select -->
+    <select id="existLectureInStudent" parameterType="map" resultType="map">
+        select 
+        l.LT_NO as l_no, 
+        ST_EMAIL as s_email,
+        time_to_sec(lt_e_time) as l_e_time,
+        time_to_sec(now()) as l_now
+        from (lectures as l left join st_lec_reg_check as s
+        on l.lt_no = s.lt_no) left join lt_times as t
+        on l.lt_no = t.lt_no
+        where TCH_EMAIL = #{t_email} and l.lt_no = #{l_no} and lt_DATE=#{t_day};
+    </select>
+    
+    
+    <!-- 학원강사 사진등록, 받아온 강사의 이메일에 해당하는 row를 찾고 picture 컬럼에 파일명을 insert -->
+    <update id="t_tag_reg" parameterType="map">
+        update teachers set TCH_PICTURE=#{p_name} where TCH_EMAIL=#{t_email};
+    </update>
+    
+    <!-- 출결 수정, 받아온 출결내역번호를 찾아서 수정된 상태값을 업데이트 시킨다. -->
+    <update id="changeStatus" parameterType="map">
+        update attend set AT_STATUS=#{a_status} where AT_NO=#{a_no};
+    </update>
+    
+    
+    <!-- 강사 강좌등록, 받아온 강좌번호로 강좌를 찾아 태그고유번호를 업데이트 한다-->
+	<update id="teacherTagReg" parameterType="map">
+	update lectures set
+	LT_NFC_NUM=#{tag_no} where LT_NO=#{l_no};
+	</update>
+	
+	<!-- 강사 회원가입, 받아온 모든 값을 insert 시킨다 -->
+
+	<insert id="addTeacher" parameterType="teacher">
+		insert into
+		TEACHERS(TCH_EMAIL, TCH_NAME, TCH_PH, TCH_PW, TCH_PICTURE, TCH_ADDR)
+		values(#{t_email}, #{t_name}, #{t_ph}, #{t_password}, #{t_picture}, #{t_addr})
+	</insert>
+	
+	<!-- 중복확인 메서드를 하면서 teacher 세션에 다 저장할 값들을 불러서 넘겨준다. -->
+	<!-- 개인정보 출력할때도 마찬가지 -->
+	<select id="getTeacher" parameterType="string" resultType="teacher">
+		select
+		TCH_EMAIL as t_email,
+		TCH_NAME as t_name,
+		TCH_PH as t_ph,
+		TCH_ADDR as t_addr,
+		TCH_PICTURE as t_picture
+		from TEACHERS
+		where TCH_EMAIL=#{t_email}
+	</select>
+
+	<!-- 전화번호변경 -->
+	<update id="updatePhTeacher" parameterType="teacher">
+		update TEACHERS set
+		TCH_PH = #{t_ph}
+		where TCH_EMAIL=#{t_email}
+	</update>
+	
+	<!-- 주소변경 -->
+	<update id="updateAddrTeacher" parameterType="teacher">
+		update TEACHERS set
+		TCH_ADDR = #{t_addr}
+		where TCH_EMAIL=#{t_email}
+	</update>
+
+
+	<!-- 로그인처리, 받아온 해쉬맵객체에 각 key를 꺼내서 DB로부터 셀렉트 해온다 -->
+	<!-- 꺼내온후 teacher 객체에 담아서 리턴 -->
+	<select id="existsTeacher" parameterType="map" resultType="teacher">
+		select
+		TCH_NAME as t_name,
+		TCH_PH as t_ph,
+		TCH_EMAIL as t_email
+		from TEACHERS
+		where TCH_EMAIL=#{email} and TCH_PW=#{password}
+	</select>
+	
+	<!-- PARK JONG SOO -->
+	<select id="l_teacherList" parameterType="int" resultType="teacher">   
+	    select
+	    	t.TCH_EMAIL as t_email,
+	    	t.TCH_NAME as t_name,
+	    	t.TCH_PH as t_ph,
+	    	t.TCH_ADDR as t_addr,
+	    	t.TCH_PICTURE as t_picture
+	    from
+	    	LECTURES as l, TEACHERS as t
+	    where
+	    	t.TCH_EMAIL = l.TCH_EMAIL
+	    	and l.LT_NO=#{value}
+	</select>
+
+</mapper>
+

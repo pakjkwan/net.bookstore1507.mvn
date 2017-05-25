@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.BookDao">
+
+	<insert id="addBook" parameterType="book">
+		insert
+		into BOOK(Title, Author, Price, Pub_Date, Pub, Trans, Type_Code, Category, Reg_Date, ISBN, Book_Img_Url)
+		value(#{title}, #{author}, #{price}, #{pubDate}, #{pub}, #{trans}, #{typeCode}, #{category}, now(), #{isbn}, #{bookImgUrl})
+			
+	</insert>
+	
+	<!-- 메인 페이지 도서 출력 -->
+<!-- 	<select id="getMainBook" parameterType="member" resultType="book"> -->
+<!-- 		select -->
+<!-- 			y.ISBN as isbn, -->
+<!-- 			x.Pers_Book_No as persBookNo, -->
+<!-- 			x.c, -->
+<!-- 			y.TiTle as title, -->
+<!-- 			y.Book_Img_Url as bookImgUrl, -->
+<!-- 			y.Type_Code as typeCode -->
+<!-- 		from -->
+<!-- 		( -->
+<!-- 		select  -->
+<!-- 			Pers_Book_No, -->
+<!-- 			count(Pers_Book_No) as c -->
+<!-- 		from LEND -->
+<!-- 		group by (Pers_Book_No) -->
+<!-- 		order by c desc -->
+<!-- 		)x -->
+<!-- 		join -->
+<!-- 		(SELECT -->
+<!-- 			pl.ISBN, -->
+<!-- 			pl.Reg_Code, -->
+<!-- 			b.TiTle, -->
+<!-- 			b.Type_Code, -->
+<!-- 			b.Book_Img_Url, -->
+<!-- 			pl.Pers_Book_No -->
+<!-- 		FROM -->
+<!-- 			PERSONAL_LIBRARY pl -->
+<!-- 			JOIN -->
+<!-- 				BOOK b -->
+<!-- 			ON -->
+<!-- 				pl.ISBN=b.ISBN -->
+<!-- 		)y -->
+<!-- 		on -->
+<!-- 		x.Pers_Book_No=y.Pers_Book_No -->
+<!-- 		group by(ISBN) -->
+<!-- 		order by x.c desc; -->
+<!-- 	</select> -->
+
+	<select id="getMainBook" parameterType="member" resultType="map">
+	
+		select 
+			b1.Title as title,
+			b1.ISBN as isbn,
+			b1.Book_Img_Url as bookImgUrl,
+			pl1.Pers_Book_No as persBookNo,
+			b1.Type_Code as typeCode,
+			pl1.Mem_No,
+			pl1.Reg_Code as regCode
+		from
+			BOOK b1, PERSONAL_LIBRARY pl1
+		<choose>
+		<when test="id != null">
+		where b1.ISBN not in
+			(
+			select
+				b.ISBN
+			from
+				 BOOK b, PERSONAL_LIBRARY pl
+			where
+			
+				pl.Mem_No=#{memNo}
+			and
+				pl.ISBN=b.ISBN
+			group by (b.ISBN)
+			)
+		and
+			pl1.ISBN=b1.ISBN
+		</when>
+		<otherwise>
+		where
+			pl1.Mem_No is not null
+		</otherwise>
+		</choose>
+		and
+			pl1.Rental_Status='1'
+		group by (b1.ISBN);
+	
+	</select>
+
+	
+<!-- 	<select id="getDbSearch" parameterType="map" resultType="book"> -->
+	<select id="getDbSearch" parameterType="string" resultType="map">
+		select
+			b.TiTle as title,
+			b.ISBN as isbn,
+			b.Book_Img_Url as bookImgUrl,
+			pl.Pers_Book_No as persBookNo,
+			b.Type_Code as typeCode,
+			pl.Reg_Code as regCode
+		from
+			BOOK b, PERSONAL_LIBRARY pl
+		where
+			b.ISBN=pl.ISBN
+		and
+			b.TiTle like #{keyword}
+		and
+			pl.Rental_Status='1'
+<!-- 		and -->
+<!-- 			pl.MemNo!=#{memNo} -->
+		group by
+			(b.ISBN)
+	</select>
+	
+<!-- 	카테고리 선택 결과 : 상위(우리가 정한 8가지) -->
+	<select id="getHighCateBook" parameterType="string" resultType="map">
+	
+		select
+			b.ISBN as isbn,
+			b.Title as title,
+			b.Author as author,
+			b.Price as price,
+			b.Pub_Date as pubDate,
+			b.Pub as pub,
+			b.Trans as trans,
+			b.Type_Code as typeCode,
+			b.Category as category,
+			b.Reg_Date as regDate,
+			b.Book_Img_Url as bookImgUrl,
+			pl.Reg_Code as regCode
+		from
+			BOOK b, PERSONAL_LIBRARY pl
+		where
+			b.Type_Code=#{typeCode}
+		and
+			b.ISBN=pl.ISBN
+		and
+			pl.Rental_Status='1'
+			
+	</select>
+	
+<!-- 	카테고리 선택 결과 : 하위(다음이 제공하는 약 30종류의 카테고리) -->
+	<select id="getLowCateBook" parameterType="string" resultType="map">
+	
+		select
+			b.ISBN as isbn,
+			b.Title as title,
+			b.Author as author,
+			b.Price as price,
+			b.Pub_Date as pubDate,
+			b.Pub as pub,
+			b.Trans as trans,
+			b.Type_Code as typeCode,
+			b.Category as category,
+			b.Reg_Date as regDate,
+			b.Book_Img_Url as bookImgUrl,
+			pl.Reg_Code as regCode
+		from
+			BOOK b, PERSONAL_LIBRARY pl
+		where
+			Category=#{category}
+		and
+			b.ISBN=pl.ISBN
+		and
+			pl.Rental_Status='1'
+			
+	</select>
+	
+	<!-- 신청 페이지 도서 정보 가져오기 -->
+	<select id="getBook" parameterType="string" resultType="book">
+		select
+			b.ISBN as isbn,
+			b.Title as title,
+			b.Author as author,
+			b.Trans as trans,
+			b.Pub as pub,
+			b.Pub_Date as pubDate,
+			b.Book_Img_Url as bookImgUrl,
+			pl.Reg_Code as regCode
+		from
+			BOOK b, PERSONAL_LIBRARY pl
+		where
+			b.ISBN=#{isbn}
+		and
+			b.ISBN=pl.ISBN
+		group by (b.ISBN)
+	</select>
+	
+	<!-- 개인 도서관에 보여줄 자세한 책의 정보 -->
+	<select id="getBooks" parameterType="string" resultType="book">
+		select
+			b1.ISBN as isbn,
+			b1.Title,
+			b1.Author,
+			b1.Price,
+			b1.Pub_Date pubDate,
+			b1.Pub,
+			b1.Trans,
+			b1.Type_Code as typeCode,
+			b1.Reg_Date as regDate,
+			b1.Book_Img_Url as bookImgUrl
+		from book b1
+		where b1.ISBN=#{isbn}
+		group by (b1.ISBN)
+	</select>
+	
+	<!-- 개인도서목록에서 정보 가져오기 -->
+	<select id="getMembers" parameterType="string" resultType="Collection">
+		select
+			ISBN,
+			Mem_No as memNo
+		from
+			PERSONAL_LIBRARY
+		where
+			ISBN=#{value}
+	</select>
+	
+	<!-- 특정한 도서에 대한 키핑된 수량 -->
+	<select id="numOfOneBookKeeping" parameterType="string" resultType="int">
+		select
+			count(Reg_Code)
+		from
+			BOOK b, PERSONAL_LIBRARY pl
+		where
+			pl.ISBN=b.ISBN
+		and
+			pl.Reg_Code='1'
+		and
+			b.ISBN=#{isbn}
+	</select>
+	
+	<!-- 특정한 도서에 대한 기부된 수량 -->
+	<select id="numOfOneBookDonation" parameterType="string" resultType="int">
+		select
+			count(Reg_Code)
+		from
+			BOOK b, PERSONAL_LIBRARY pl
+		where
+			pl.ISBN=b.ISBN
+		and
+			pl.Reg_Code='2'
+		and
+			b.ISBN=#{isbn};
+	</select>
+	
+	<!-- 보유한 총 도서 수량 -->	
+	<select id="numOfAllBooks" resultType="int">
+		select
+			count(Reg_Code)
+		from
+			PERSONAL_LIBRARY;
+	</select>
+	
+	<!-- 키핑된 도서 수량 -->
+	<select id="numOfBookKeeping" resultType="int">
+		select
+			count(Reg_Code)
+		from
+			PERSONAL_LIBRARY
+		where
+			Reg_Code='1';
+	</select>
+	
+	<!-- 기부된 도서 수량 -->
+	<select id="numOfBookDonation" resultType="int">
+		select
+			count(Reg_Code)
+		from
+			PERSONAL_LIBRARY
+		where
+			Reg_Code='2';
+	</select>
+	
+	<!-- 내가 보관한 도서의 총 수량 -->
+	<select id="numOfMyBookKeeping" parameterType="int" resultType="int">
+	
+		select
+			ifnull(count(pl.Reg_Code), 0)
+		from
+			PERSONAL_LIBRARY pl
+		where
+			pl.Mem_No=#{memNo}
+		and
+			pl.Reg_Code='1';
+			
+	</select>
+	
+	<!-- 내가 나눔한 도서의 총 수량 -->
+	<select id="numOfMyBookDonation" parameterType="int" resultType="int">
+	
+		select
+			ifnull(count(pl.Reg_Code), 0)
+		from
+			PERSONAL_LIBRARY pl
+		where
+			pl.Mem_No=#{memNo}
+		and
+			pl.Reg_Code='2';
+			
+	</select>
+
+</mapper>

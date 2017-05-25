@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Document</title>
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>	
+<!-- <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script> -->
+</head>
+<body>
+	<select name='searchType' id="searchType">
+     <option value='title'>TITLE</option>
+     <option value='name'>WRITER</option>
+     <option value='date'>DATE</option>
+</select>
+<input type='text' name='searchVal' id="searchVal">
+<input type='submit' value='SEARCH'>
+<script type="text/javascript">
+
+ $(function() {
+  jQuery.datepicker.setDefaults({
+   monthNames: ['년 1월','년 2월','년 3월','년 4월','년 5월','년 6월','년 7월','년 8월','년 9월','년 10월','년 11월','년 12월'],
+   dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+   showMonthAfterYear:true,
+   dateFormat: 'yy-mm-dd'
+  });
+
+  jQuery( "#searchType" ).change( function(){
+   if ( jQuery( "#searchType option:selected" ).val() == "date" ){
+    jQuery( "#searchVal" ).datepicker();
+   }else{ 
+    jQuery( "#searchVal" ).datepicker( "destroy" );
+   }
+  });
+ });
+</script>
+</body>
+</html>
+

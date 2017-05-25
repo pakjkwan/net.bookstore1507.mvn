@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member.MemberMapper">
+   <!-- *************************************--> 
+   <!--   			executeUpdate            --> 
+   <!--**************************************--> 
+    <insert id="insert" parameterType="Member">
+        insert into  member ( userid, password, name, age, email, is_admin, regdate, profile) 
+        values(
+        #{userid}, #{password}, #{name}, #{age}, #{email}, 0, sysdate, profile.gif)
+        
+    </insert>
+    <update id="update" parameterType="Member" >
+       update member set password=#{password}, 
+                          email=#{email},
+                          profile=#{profile} 
+        where userid=#{userid}
+    </update>
+     <!-- delete 삭제 -->
+    <delete id="delete" parameterType="String">
+        delete from member where userid=#{userid} 
+    </delete>
+    
+   <!-- *************************************--> 
+   <!--   			executeQuery            --> 
+   <!--**************************************--> 
+    
+    <select id="detail" resultType="Member" parameterType="Command">
+        select 
+       m.userid as userid, 
+			m.name as name,
+			m.age as age,
+			m.password as password,
+			m.email as email,
+			m.is_admin as isAdmin, 
+			to_char(m.regdate,'yyyy-mm-dd hh24:mi:ss') as regdate,
+			m.profile as profile
+       from member m
+       where ${searchKey} = #{searchVal}
+    </select>
+   
+    <select id="search" resultType="Member" parameterType="Command" >
+		select t2.* from (select 
+       rownum as seq,t.*
+        from (
+        	select  
+        	m.userid as userid, 
+			m.name as name,
+			m.age as age,
+			m.password as password,
+			m.email as email,
+			m.is_admin as isAdmin, 
+			to_char(m.regdate,'yyyy-mm-dd hh24:mi:ss') as regdate
+			 
+       		 from Member m 
+       		 order by regdate desc where userid = ${searchVal}
+       		 ) t)t2
+        where t2.seq between #{start} and #{end}
+        order by t2.seq asc
+    </select>    
+    <select id="list" resultType="Member" parameterType="Command" >
+		select t2.* from (select 
+       rownum as seq,t.*
+        from (
+        	select  
+        	m.userid as userid, 
+			m.name as name,
+			m.age as age,
+			m.password as password,
+			m.email as email,
+			m.is_admin as isAdmin, 
+			to_char(m.regdate,'yyyy-mm-dd hh24:mi:ss') as regdate
+			 
+       		 from Member m 
+       		 order by regdate desc
+       		 ) t)t2
+        where t2.seq between #{start} and #{end}
+        order by t2.seq asc
+	</select>	 
+    <select id="count" resultType="int" parameterType="Command" >
+        select count(*) 
+		from Member m  
+		where  ${searchKey} = #{searchVal})
+        
+    </select>
+    <select id="size" resultType="int">
+        select count(*) from member
+    </select>
+    
+    <!-- id/pw찾기 -->
+    <select id="loginSearch" parameterType="Member" resultType="int">
+        select count(*) from member where member_name=#{member_name} and member_email=#{member_email}
+    </select>
+ 
+    <!-- id 중복체크 -->
+    <select id="idCheck" parameterType="Member" resultType="int">
+        select count(*) from member where member_id=#{value} 
+    </select>        
+      <!-- 로그인 -->
+    <select id="login" resultType="Member" parameterType="Command" >
+        select m.userid , m.name, m.age, m.password, m.email, m.is_admin, m.regdate, i.image  
+        from Member m join Image i
+        on  m.userid = i.userid
+        where m.userid=#{searchKey} and m.password=#{searchVal}
+    </select>
+</mapper>

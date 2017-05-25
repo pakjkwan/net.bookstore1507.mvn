@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.MessageDao">
+	
+	<!-- 메세지 보내기 -->
+	<insert id="sendMessage" parameterType="message" >
+	
+		insert into MESSAGE (
+			Send_Mem_Id,
+			Receive_Mem_Id,
+			Title,
+			Content,
+			Send_Date
+		)values(
+			#{sendId},
+			#{recId},
+			#{title},
+			#{content},
+			now()
+		)
+	
+	</insert>
+	
+	<!-- 시스템 메세지(도서 신청시 신청 메세지) 보내기 -->
+	<insert id="sendSysMsg" parameterType="message" >
+	
+		insert into SYS_MESSAGE (
+			Receive_Mem_Id,
+			Title,
+			Content,
+			Send_Date
+		)values(
+			#{recId},
+			#{title},
+			#{content},
+			now()
+		)
+	
+	</insert>
+	
+	<!-- 받은 메세지함(시스템) -->
+	<select id="getSysRecMessageList" parameterType="map" resultType="message">
+	
+		select
+			Message_No as msgNo,
+			Send_Mem_Id as sendId,
+			Title as title,
+			Send_Date as sendDate,
+			Read_Date as readDate,
+			Status as status
+		from
+			SYS_MESSAGE
+		where
+			Receive_Mem_Id = #{recId}
+		order by
+			Status,
+			Message_No DESC
+		limit
+			#{pageStartIndex}, #{pageSize} 
+			
+	</select>
+	
+	
+	<!--	보낸 메세지함 -->
+	<select id="getSendMessageList" parameterType="map" resultType ="message">
+	
+		select
+			Message_No as msgNo,
+			Receive_Mem_ID as recId,
+			Title as title,
+			Send_Date as sendDate
+		from
+			MESSAGE
+		where
+			Send_Mem_Id = #{sendId}
+		order by
+			Status,
+			Message_No DESC
+		limit
+			#{pageStartIndex}, #{pageSize}
+	
+	</select>
+	
+	
+	<!-- 받은 메세지함 -->
+	<select id="getRecMessageList" parameterType="map" resultType="message">
+	
+		select
+			Message_No as msgNo,
+			Send_Mem_Id as sendId,
+			Title as title,
+			Send_Date as sendDate,
+			Read_Date as readDate,
+			Status as status
+		from
+			MESSAGE
+		where
+			Receive_Mem_Id = #{recId}
+		order by
+			Message_No DESC
+		limit
+			#{pageStartIndex}, #{pageSize} 
+			
+	</select>
+	
+		
+	<!-- 메세지 확인(받은 쪽지, 보낸 쪽지 같이 사용. -->
+	<select id="getMsgContent" parameterType="string" resultType="message">
+	
+		select  
+			Message_No as msgNo,
+			Send_Mem_Id as sendId,
+			Receive_Mem_Id as recId,
+			Title as title,
+			Content as content,
+			Send_Date as sendDate,
+			Read_Date as readDate,
+			Status as status
+		from
+			MESSAGE 
+		where
+			Message_No = #{msgNo}
+		
+	</select>
+	
+	<!-- 메세지 확인(시스템) -->
+	<select id="getSysMsgContent" parameterType="string" resultType="message">
+	
+		select  
+			Message_No as msgNo,
+			Send_Mem_Id as sendId,
+			Receive_Mem_Id as recId,
+			Title as title,
+			Content as content,
+			Send_Date as sendDate,
+			Read_Date as readDate,
+			Status as status
+		from
+			SYS_MESSAGE 
+		where
+			Message_No = #{msgNo}
+		
+	</select>
+	
+	<!-- 메세지 확인시 읽음 처리(일반 메세지) -->
+	<update id="changeReadStatus" parameterType="int">
+	
+		update
+			MESSAGE
+		set
+			Status='Y'
+		where
+			Message_No = #{msgNo}
+			
+	</update>
+	
+	<!-- 메세지 확인시 읽음 처리(시스템 메세지) -->
+	<update id="sysChangeReadStatus" parameterType="int">
+	
+		update
+			SYS_MESSAGE
+		set
+			Status='Y'
+		where
+			Message_No = #{msgNo}
+			
+	</update>
+	
+	
+	<select id="recSize" parameterType="string" resultType="int">
+	
+		select
+			count(*)
+		from
+		 	MESSAGE
+		where
+			Receive_Mem_Id = #{recId}
+	
+	</select>
+	
+	<select id="sendSize" parameterType="string" resultType="int">
+	
+		select
+			count(*)
+		from
+			MESSAGE
+		where
+			Send_Mem_Id = #{sendId}
+	
+	</select>
+	
+	<select id="unreadSize" parameterType="string" resultType="int">
+	
+		select
+			count(*)
+		from
+			MESSAGE
+		where
+			Receive_Mem_Id = #{recId}
+		and
+			Status = 'N'
+	
+	</select>
+	
+	<select id="unreadSysSize" parameterType="string" resultType="int">
+	
+		select
+			count(*)
+		from
+			SYS_MESSAGE
+		where
+			Receive_Mem_Id = #{recId}
+		and
+			Status = 'N'
+	
+	</select>
+	
+</mapper>

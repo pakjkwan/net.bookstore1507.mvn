@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.DonationDeliveryDao">
+
+	<select id="applyList" parameterType="map" resultType="delivery">
+		select 
+			m2.ID as id,
+			l.Apply_Date as applyDate,
+			b.TiTle as title,
+			l.Apply_Status_Code as applyStatusCode
+		from 
+			MEMBER m1, MEMBER m2, PERSONAL_LIBRARY pl, LEND l, BOOK b
+		where
+			l.Mem_No=#{memNo}
+		and
+			l.Pers_Book_No=pl.Pers_Book_No
+		and	
+			m2.Mem_No=pl.Mem_No
+		and 
+			pl.ISBN=b.ISBN
+		and
+			pl.Reg_Code='2' 
+		group by
+			(l.Apply_No)
+		order by
+			l.Apply_Date DESC
+		limit
+			#{pageStartIndex}, #{pageSize}
+	
+	</select>
+	  	
+	<select id="size" parameterType="int" resultType="int">
+	
+		select
+			count(x.Apply_No)
+		from
+		(
+			select 
+				l.Apply_No
+			from 
+				LEND l, PERSONAL_LIBRARY pl
+			where
+				l.Mem_No=#{memNo}
+			and
+				pl.Reg_Code='2'
+			and
+				pl.Pers_Book_No=l.Pers_Book_No
+			group by
+				(l.Apply_No)
+		)x;
+		
+	</select>
+    
+	<select id="borrowDeliveryList" parameterType="map" resultType="delivery">	
+		select
+			d.Send_Date as sendDate,
+			m2.ID as id,
+			b.TiTle as title,
+			d.Del_Code as delCode,
+			d.Del_No as delNo,
+			pl.Reg_Code as regCode,
+			b.ISBN as isbn
+		from
+			LEND l, DELIVERY d, MEMBER m1, MEMBER m2, PERSONAL_LIBRARY pl, BOOK b
+		where
+			l.Mem_No=#{memNo}
+		and
+			l.Apply_No=d.Apply_No
+		and
+			d.Del_Code IN ('1','2')
+		and
+			l.Pers_Book_No=pl.Pers_Book_No
+		and
+			pl.Mem_No=m2.Mem_No
+		and
+			pl.ISBN=b.ISBN
+		and
+			pl.Reg_Code='2'
+		group by
+			(d.Apply_No)
+		order by
+			d.Send_Date DESC
+		limit
+			#{pageStartIndex}, #{pageSize}
+		
+  	</select>
+  		
+	<select id="size1" parameterType="int" resultType="int">
+	
+		select
+			count(x.Apply_No)
+		from
+		(
+			select
+				d.Apply_No
+			from
+				LEND l, DELIVERY d, PERSONAL_LIBRARY pl
+			where
+				l.Mem_No=#{memNo}
+			and
+				l.Apply_No=d.Apply_No
+			and
+				d.Del_Code IN ('1','2')
+			and
+				pl.Reg_Code='2'
+			and
+				pl.Pers_Book_No=l.Pers_Book_No
+			group by
+				(d.Apply_No)
+		)x
+			
+	</select>
+	
+  	<update id="receiveConfirm" parameterType="int">
+ 	    
+ 	    update
+ 	    	DELIVERY
+ 	    set
+ 	    	
+	    	Del_Code='3',
+	    	Rec_Date=now()
+ 	    	
+ 	    where
+ 	    	Del_No=#{delNo}
+ 	    
+ 	</update>
+
+	<!-- 기부받은 도서 리스트 : 기부 가능을 위해 내 서재의 PBN을 가져오기 위해 Donation과 PL(pl2)을 join하여 값을 가져온다. 	 -->
+	<select id="borrowList" parameterType="map" resultType="delivery">	
+
+<!-- 		select -->
+<!-- 			x.Donation_No as doNo, -->
+<!-- 			x.Rec_Date as recDate, -->
+<!-- 			x.Del_Code as delCode, -->
+<!-- 			x.Del_No as delNo, -->
+<!-- 			x.Title as title, -->
+<!-- 			x.Pers_Book_No as persBookNo, -->
+<!-- 			x.Send_Date as sendDate, -->
+<!-- 			x.ID as id -->
+<!-- 		from -->
+<!-- 		( -->
+<!-- 		select -->
+<!-- 			don.Donation_No, -->
+<!-- 			d.Rec_Date, -->
+<!-- 			d.Del_Code, -->
+<!-- 			d.Del_No, -->
+<!-- 			b.Title, -->
+<!-- 			pl2.Pers_Book_No, -->
+<!-- 			d.Send_Date, -->
+<!-- 			m.ID -->
+<!-- 		from -->
+<!-- 			LEND l, PERSONAL_LIBRARY pl, DONATION don, DELIVERY d, BOOK b, PERSONAL_LIBRARY pl2, MEMBER m -->
+<!-- 		where -->
+<!-- 			l.Mem_No=#{memNo} -->
+<!-- 		and -->
+<!-- 			l.Apply_No=d.Apply_No -->
+<!-- 		and -->
+<!-- 			l.Pers_Book_No = pl.Pers_Book_No -->
+<!-- 		and -->
+<!-- 			pl.Pers_Book_No = don.Pers_Book_No -->
+<!-- 		and -->
+<!-- 			pl.Mem_No=m.Mem_No -->
+<!-- 		and -->
+<!-- 			don.Donation_No=pl2.Donation_No -->
+<!-- 		and -->
+<!-- 			pl.ISBN=b.ISBN -->
+<!-- 		)x -->
+<!-- 		left join -->
+<!-- 		( -->
+<!-- 		select  -->
+<!-- 				pl.Donation_No -->
+<!-- 		from  -->
+<!-- 				LEND l, PERSONAL_LIBRARY pl -->
+<!-- 			where -->
+<!-- 				l.Mem_No=#{memNo} -->
+<!-- 			and -->
+<!-- 				l.Pers_Book_No=pl.Pers_Book_No -->
+<!-- 		)y -->
+<!-- 		on -->
+<!-- 			x.Donation_No=y.Donation_No -->
+<!-- 		order by -->
+<!-- 			x.Rec_Date DESC -->
+<!-- 		limit -->
+<!-- 			#{pageStartIndex}, #{pageSize} -->
+
+		select
+			b.Title as title,
+			m.ID as id,
+			pl.Rental_Status as rentalStatus,
+			pl.Pers_Book_No as persBookNo
+		from
+			PERSONAL_LIBRARY pl, PERSONAL_LIBRARY pl2, DONATION don, MEMBER m, BOOK b
+		where
+			pl.Mem_No=#{memNo}
+		and
+			pl.Donation_No=don.Donation_No
+		and
+			don.Pers_Book_No=pl2.Pers_Book_No
+		and
+			pl2.Mem_No=m.Mem_No
+		and
+			pl.ISBN=b.ISBN
+		limit
+	 		#{pageStartIndex}, #{pageSize}
+		
+  	</select>
+
+	<select id="size2" parameterType="int" resultType="int">
+	    
+	   select
+			count(x.Apply_No)
+		from
+		(
+			select
+				d.Apply_No
+			from
+				LEND l, DELIVERY d, PERSONAL_LIBRARY pl
+			where
+				l.Mem_No=#{memNo}
+			and
+				l.Apply_No=d.Apply_No
+			and
+				d.Del_Code IN ('3', '6')
+			and
+				pl.Reg_Code='1'
+			and
+				pl.Pers_Book_No=l.Pers_Book_No
+			group by
+				(d.Apply_No)
+		)x
+	    	    
+	</select>
+	
+	<update id="readComplete" parameterType="int">
+ 	    
+ 	    update
+ 	    	DELIVERY
+    	set
+ 	    	
+	    	Del_Code='6',
+	    	Return_Date=now()
+ 	    	
+ 	    where
+ 	    	Del_No=#{delNo}
+ 	    
+ 	</update>
+ 	
+	<!-- 나눔받은 도서를 다 읽은 후 독서 완료 버튼을 눌렀을 때 Rental_Status를 1로 Update -->
+	<update id="rentalStatusY" parameterType="int">
+	
+		update
+			PERSONAL_LIBRARY
+		set
+			Rental_Status = '1'
+		where
+			Pers_Book_No=#{persBookNo} 
+			
+	</update>
+	
+</mapper>

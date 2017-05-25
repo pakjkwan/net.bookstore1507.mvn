@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.intime.java33.dao.StudentDao">
+
+	<!-- cw 출석정보가 없을시 결석처리 -->
+<!-- 	<insert id="s_exist2" parameterType="map"> -->
+<!-- 		insert into attend(st_email, -->
+<!-- 		lt_no, at_day, at_status, at_tag_stat) -->
+<!-- 		values(#{s_email}, #{l_no}, -->
+<!-- 		current_date(), #{a_stat}, #{a_tag_stat}); -->
+<!-- 	</insert> -->
+
+	<update id="s_exist2" parameterType="map">
+		update attend set at_status=#{a_stat}, at_tag_stat=#{a_tag_stat}
+		where at_no=#{a_no};
+	</update>
+
+	<!-- cw 오늘 자기가 듣는 강좌목록을 출력 -->
+	<select id="s_todayLecture" parameterType="map" resultType="lecture">
+		select
+		l.lt_no as l_no,
+		time_to_sec(lt_e_time) as l_e_time,
+		time_to_sec(now()) as l_now
+		from st_lec_reg_check as s inner join
+		lt_times as l
+		on s.lt_no=l.lt_no
+		where st_email=#{s_email} and
+		lt_date=#{t_day};
+
+	</select>
+
+	<!-- cw 결석처리 중 출석정보존재유무를 따져 return null인지 확인 -->
+	<select id="s_exist1" parameterType="map" resultType="attend">
+		select
+		at_no as a_no,
+		at_status as a_status
+		from attend where
+		st_email=#{s_email} and lt_no=#{l_no} and
+		at_day=current_date();
+	</select>
+
+	<!-- cw 학생이메일 FK로 설정된 테이블데이터정보와 계정삭제 -->
+	<delete id="deleteAccountStep1" parameterType="string">
+		delete from attend
+		where st_email = #{s_email};
+	</delete>
+	<delete id="deleteAccountStep2" parameterType="string">
+		delete from
+		st_lec_reg_check
+		where st_email = #{s_email};
+	</delete>
+	<!-- 최종계정삭제 -->
+	<delete id="deleteAccountStep3" parameterType="string">
+		delete from
+		students
+		where st_email = #{s_email};
+	</delete>
+
+	<!-- cw 출석체크(입실) 처리 -->
+	<!-- kh 출석체크 update로 처리 -->
+	<update id="checkAttend" parameterType="map">
+		update attend
+		set AT_STATUS = #{stat}
+		where ST_EMAIL=#{s_email} and
+		LT_NO=#{l_no} and AT_DAY=#{a_today};
+	</update>
+	<!-- <select id="checkAttend" parameterType="map"> insert into attend(ST_EMAIL, 
+		AT_DAY, LT_NO, AT_TAG_STAT, AT_STATUS) values(#{s_email}, #{a_today}, #{l_no}, 
+		#{tag_stat}, #{stat}); </select> -->
+
+
+	<!-- cw NFC tag동작 후 오늘 요일과 고유번호를 넘겨 특정 강좌목록을 뽑아온다 -->
+	<!-- 강좌의 시작,종료 시간을 초단위로 바꿔서 뽑아오고 -->
+	<!-- 데이터를 요청한 현재시간도 같이 가져온다(태깅한 현재시간을 비교하기위해) -->
+	<select id="s_getLectureNumNFC" parameterType="map" resultType="map">
+		select
+		time_to_sec(lt_s_time) as l_s_time,
+		time_to_sec(lt_e_time) as
+		l_e_time,
+		time_to_sec(now()) as l_now,
+		lt_name as l_name,
+		l.lt_no as l_no
+		from
+		(lt_times as t left join lectures as l
+		on t.lt_no=l.lt_no) left
+		join st_lec_reg_check as r
+		on t.lt_no=r.lt_no
+		where
+		lt_nfc_num=#{nfcNum}
+		and lt_date=#{t_day} and st_email=#{s_email};
+
+	</select>
+
+	<!-- cw 두번태깅시 퇴실을 처리(정상출석 일경우) -->
+	<!-- 태그상태를 2, 출결상태를 출석으로 업데이트 -->
+	<!-- 현재날짜와 출결상태가 미퇴실일 경우에만 -->
+	<update id="doubleTag" parameterType="map">
+		update attend set
+		AT_TAG_STAT = 2, AT_STATUS='출석'
+		where ST_EMAIL=#{s_email} and
+		LT_NO=#{l_no} and AT_DAY=current_date() and
+		AT_STATUS='미퇴실';
+	</update>
+
+	<!-- cw 두번태깅시 퇴실을 처리(지각 일경우) -->
+	<!-- 태그상태를 2, 출결상태를 지각으로 업데이트 -->
+	<!-- 현재날짜와 출결상태가 지각(미퇴실)일 경우에만 -->
+	<update id="doubleTagLate" parameterType="map">
+		update attend set
+		AT_TAG_STAT = 2, AT_STATUS='지각'
+		where ST_EMAIL=#{s_email} and
+		LT_NO=#{l_no} and AT_DAY=current_date() and
+		AT_STATUS='지각(미퇴실)';
+	</update>
+
+	<!-- cw NFC 고유번호에 등록된 오늘 수업의 출석체크 여부를 확인 -->
+	<!-- Attend 테이블에 자기 이메일, 강좌번호, 오늘 날짜를 비교 -->
+	<!-- 존재할 경우 태깅한 row의 참석번호와 태깅상태 값을 넘겨준다 -->
+	<select id="existAttend" parameterType="map" resultType="attend">
+		select
+		AT_NO as a_no,
+		AT_STATUS as a_status,
+		AT_TAG_STAT as a_tag_stat
+		from
+		ATTEND
+		where
+		ST_EMAIL=#{s_email} and LT_NO=#{l_no} and
+		AT_DAY=current_date();
+	</select>
+
+	<update id="s_pictureChange" parameterType="map">
+		update students set
+		ST_PICTURE = #{s_name} where ST_EMAIL=#{s_email};
+	</update>
+
+
+	<!--kh 학생 로그인 -->
+	<select id="existsStudent" parameterType="map" resultType="student">
+		select
+		ST_NAME as s_name,
+		ST_PW as s_password,
+		ST_PH as s_ph,
+		ST_EMAIL as
+		s_email,
+		ST_PICTURE as s_picture,
+		ST_ADDR as s_addr
+		from STUDENTS
+		where
+		ST_EMAIL=#{email} and ST_PW=#{password}
+	</select>
+
+	<!--kh 이메일 중복체크 -->
+	<select id="getEmailCheck" parameterType="string" resultType="student">
+		select
+		ST_EMAIL as s_email
+		from STUDENTS
+		where ST_EMAIL=#{s_email}
+	</select>
+
+	<!--kh 학생 회원가입 회원정보 DB추가 -->
+	<insert id="addStudent" parameterType="student">
+		insert into
+		STUDENTS
+		(ST_NAME, ST_PH, ST_EMAIL, ST_PW, ST_PICTURE)
+		values (#{s_name},
+		#{s_ph}, #{s_email}, #{s_password}, #{s_picture})
+	</insert>
+
+	<!--kh 학생 주소 변경 -->
+	<update id="studentAddrChange" parameterType="map">
+		update students
+		set
+		ST_ADDR = #{s_addr}
+		where ST_EMAIL = #{s_email}
+	</update>
+
+	<!--kh 학생 전화번호 변경 -->
+	<update id="studentPhChange" parameterType="map">
+		update students
+		set
+		ST_PH = #{s_ph}
+		where ST_EMAIL = #{s_email}
+	</update>
+
+	<!--kh nfc 고유번호에 해당하는 강좌 정보 가져오기 -->
+	<select id="getLectureByNfc" parameterType="map" resultType="lecture">
+		select
+		l.LT_NO as l_no,
+		l.ST_REG_ONOFF as s_reg_onoff,
+		t.LT_DATE as
+		l_date,
+		t.LT_S_TIME as l_s_time,
+		t.LT_E_TIME as l_e_time
+		from lectures as
+		l inner join lt_times as t
+		on l.LT_NO =
+		t.LT_NO
+		where
+		LT_NFC_NUM=#{nfcNum} and LT_DATE=#{l_date}
+	</select>
+
+	<!--kh nfc tag하여 해당 수업에 학생 등록 -->
+	<insert id="regAttendByNfc" parameterType="map">
+		insert into
+		st_lec_reg_check(ST_EMAIL,CHECK_STATUS,LT_NO)
+		values
+		(#{s_email},'1',#{l_no});
+	</insert>
+
+	<!--kh 학생이 해당 강좌에 등록되어 있는지 여부를 확인 -->
+	<select id="studentRegCheck" parameterType="map" resultType="student">
+		select
+		ST_EMAIL as s_email
+		from st_lec_reg_check
+		where
+		ST_EMAIL=#{s_email} and
+		LT_NO=#{l_no}
+	</select>
+
+	<!--kh 학생 수업등록 후 최초 출결상태 등록 -->
+	<insert id="firstRegAttend" parameterType="map">
+		insert into
+		attend(ST_EMAIL, LT_NO, AT_DAY, AT_STATUS, AT_TAG_STAT)
+		values
+		(#{s_email},#{l_no},current_date(),'미퇴실','1');
+	</insert>
+
+	<!--kh 전체 insert하기 전에 등록된 학생들 목록 가져옴 -->
+	<select id="selectRegStudent" parameterType="int" resultType="map">
+		select
+		s.ST_EMAIL as s_email
+		from students as s inner join st_lec_reg_check as r
+		on
+		s.ST_EMAIL = r.ST_EMAIL
+		where r.LT_NO=#{l_no};
+	</select>
+
+	<!--kh 오늘날짜의 해당 강좌에 등록되어 있는 모든 학생을 attend 테이블에 기본적으로 insert해주는 proccess -->
+	<insert id="insertAllStudent" parameterType="map">
+		insert into attend (ST_EMAIL,LT_NO,AT_DAY,AT_STATUS,AT_TAG_STAT)
+		values
+		(#{s_email},#{l_no},#{a_today},#{stat},'0');
+	</insert>
+
+
+	<!-- PARK JONG SOO -->
+	<select id="l_getStudents" parameterType="int" resultType="map"><!-- 학생리스트 -->
+		select
+		s.ST_NAME as s_name,
+		s.ST_PH as s_ph,
+		s.ST_EMAIL as s_email,
+		s.ST_ADDR as s_addr
+		from
+		STUDENTS s, ST_LEC_REG_CHECK r
+		where
+		s.ST_EMAIL=r.ST_EMAIL and
+		r.LT_NO=#{value}
+		and
+		r.CHECK_STATUS=1
+	</select>
+
+	<insert id="a_addStudent" parameterType="map"><!-- 학생 등록 -->
+		insert into
+		ST_LEC_REG_CHECK (ST_EMAIL, LT_NO, CHECK_STATUS)
+		values
+		(#{s_email}, #{l_no}, 1)
+	</insert>
+	<delete id="a_removeStudent" parameterType="map">
+		delete
+		from
+		ST_LEC_REG_CHECK
+		where LT_NO=#{l_no} and ST_EMAIL=#{s_email}
+	</delete>
+</mapper>
+

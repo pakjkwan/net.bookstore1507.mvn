@@ -1,0 +1,26 @@
+applicationContext.xml
+	interface ApplicationContext ㅡ▷ BeanFactory
+	ApplicationContext extends BeanFactory
+	- IoC + AOP 컨테이너 혹은 스프링 컨테이너라고 부른다.
+	- 스프링 설정파일
+	- 객체를 관리
+	- Context 를 시작시킬 때 모든 singleton bean 을 미리 로딩(pre-loading) 함으로써
+	그 Bean 이 필요할 때 즉시 사용할 수 있도록 한다.
+	
+	BeanFactory ◁--- XmlBeanFactory
+	ApplicationContext
+		◁--- ClassPathXmlApplicationContext
+		◁--- FileSystemXmlApplcationContext
+	WebApplicationContext
+		◁--- XmlWebApplicationContext	
+	
+applicationContext.xml 의 등록방법
+1. xml 이용 방법
+2. xml + annotation 이용방법
+	@Component
+	@Repository
+	@Service
+	@Controller
+	@Value  등을 사용
+	component-scan
+. @Comfiguration 을 이용	

@@ -1,0 +1,18 @@
+@CHARSET "UTF-8";
+
+#projectForm ul {
+	padding: 0;
+}
+
+#projectForm li {
+	list-style: none;
+}
+
+#projectForm label {
+	float: left;
+	width: 100px;
+	text-align: right;
+	margin: 4px 5px 0 0; 
+}
+
+

@@ -1,0 +1,74 @@
+
+<div class='list_table'>
+<div id="lecturerView">
+	<!-- <img alt="YUI" src="account/img/1.jpg" id="lecturerPicture"> -->
+	 	<div id="lecturerPicture"></div>
+		<div id="searchList">
+			<table id="tblList" style="border-collapse:collapse">
+			<tbody>
+			<tr>
+				<td class="student_lec">강좌명</td>
+				<td id="detailClassName" colspan="3"></td>
+			</tr>
+			<tr>
+				<td class="student_lec">강사이름</td>
+				<td id="detailName"></td>
+				<td class="student_lec" align="right">전화번호</td>
+				<td id="detailTel"></td>
+			</tr>
+			<tr>
+				
+				<td class="student_lec">이메일</td>
+				<td id="detailEmail" colspan="3"></td>
+			</tr>	
+			<tr>
+				<td class="student_lec">주소</td>
+				<td id="detailAddr" colspan="3"></td>
+			</tr>
+			</tbody></table>
+		</div>
+	</div>
+	<br>
+	<br>
+	<div style="overflow : scroll; height: 350px; overflow-x : hidden">
+	<table id='list_table_student' style="border-collapse:collapse">
+		<tr >
+			<th id='S_cho'>선택</th>
+			<th id='S_name'>이름</th>
+			<th id='S_tel'>전화번호</th>
+			<th id='S_email'>이메일</th>
+			<th id='S_addr'>주소</th>
+		</tr>
+	</table>
+	</div>	
+	<script>
+		student.init();
+	</script>
+</div>
+
+<div class="buttonFooter">
+		<input type="button" value="등록" id="studentRegistButton">
+		<input type="button" value="삭제" id="deleteStudentButton">
+</div>
+
+<div id='addStudentDialog' >
+	<form action='' method='post'>
+		<fieldset class='step'>
+			<legend>이메일로 등록하세요</legend>
+			<ul>
+				<li><label for='studentEmail'>이메일</label>
+				<input type="email" id='studentEmail' name='studentId'></li>
+			</ul>
+		</fieldset>
+	</form>
+	 <input id="btnAddStudent" type="button" value="등록">
+	 <input id="btnCloseStudent" type="button" value="취소">
+<script type="text/javascript">
+var lecturePath = window.location.href;
+console.log(lecturePath);
+// 주소를 배열로 만들어 강좌번호만 뽑아냄.
+pathArray=lecturePath.split('#');
+lectureNo = pathArray[1];
+console.log(lectureNo);
+</script>
+</div>

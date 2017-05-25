@@ -1,0 +1,51 @@
+<!--======================================================-->
+<!--insert-->
+<!--======================================================-->
+<!--======================================================-->
+<!--update-->
+<!--======================================================-->
+<form action="${root}/member/update" name="frmUpdateMember"
+	method="post" enctype="multipart/form-data">
+	<table class="tab">
+		<tr>
+			<td rowspan="4" style="width: 30%"><img
+				src="${context}/image/member/${member.profile}" alt="" /></td>
+			<td>ID</td>
+			<td>${member.userid}</td>
+		</tr>
+		<tr>
+			<td>비밀번호</td>
+			<td><input type="text" name="password"
+				placeholder="${member.password}" /></td>
+		</tr>
+		<tr>
+			<td>이름</td>
+			<td>${member.name}</td>
+		</tr>
+		<tr>
+			<td>나이</td>
+			<td>${member.age}</td>
+		</tr>
+		<tr>
+			<td style="text-align: center;"><input type='button'
+				id="btnUpdateImage" style="width: 100px;" value="이미지변경"></td>
+			<td>이메일</td>
+			<td><input type="text" name="email"
+				placeholder="${member.email}" /></td>
+		</tr>
+		<tr>
+			<td style="text-align: center;" colspan="3"><input type='button'
+				id="update" style="width: 100px;" value='수정'> <input
+				type='button' id="cancel" style="width: 100px;" value='취소'>
+				<input type='button' id="remove" style="width: 100px;" value='회원탈퇴'>
+			</td>
+		</tr>
+	</table>
+</form>
+<!--======================================================-->
+<!--detail-->
+<!--======================================================-->
+
+<!--======================================================-->
+<!--list-->
+<!--======================================================-->

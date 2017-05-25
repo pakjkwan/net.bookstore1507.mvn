@@ -1,0 +1,51 @@
+Stereotype-annotation
+  : 자동으로 클래스패스에서 컴포넌트를 인식(auto-detect) 시킴
+1. @Component : 자동인식이 되는 일반 컴퍼넌트로 다른 녀석들의 부모역할
+2. @Service : 비즈니스 서비스
+3. @Repository : Dao 에 적용
+	- DB Exception Translation을 자동
+	- Hibernate DAO를POJO로 구성할 때 사용
+4. @Controller : 웹용으로 MVC 콤퍼넌트
+
+@Qualifier
+* 타입정보 외의 정보를 추가해서 자동와이어링을 세밀하게 제어할 수 있는 보조적인 방법
+
+타입에 의한 자동와이어링은 안전하기 편리하지만 타입만으로 원하는 빈을 지정하기 어려운 경우가 있다.
+
+<bean is="oracleDS" class="..."/>
+
+<bean is="mysqlDS" class="..."/>
+
+위의 두개의 빈은 둘다 DataSource 타입이다.
+
+이럴경우
+
+@Autowired를 사용하면 에러가 발생 한다
+
+이럴때 @Qualifier를 사용한다.
+
+@Qualifier("oracleDS")
+
+DataSource ds;
+
+// DataSource 타입의 빈중에서 <qulifier> 태그가 있고 그 값이 mainDB인것으로 한정하여 DI
+
+@Autowired
+
+@Qualifier("mainDB")
+
+DataSource dataSource;
+
+<bean id="oracleDS" class="...">
+
+<qulifier value="mainDB"/>
+
+</bean>
+=======
+
+@Autowired : 타입을 이용해서 의존하는 객체를 삽입
+생성자, 필드, 메서드 세곳에 적용이 가능
+<context:annotation-config/>만 등록하여 주면 자동으로 @Autowired를 사용할수 있다.
+@Autowired를 설정만 하여도 setter와 관계없이 
+해당하는 타입을 자동으로 등록해주기때문에 편리하게 사용할수 있지만 이것 역시 2개의 같은 타입을 값을 받게 된다면 어느것을 사용해야 하는지 알수 없기 때문에
+ 예외가 발생하는 단점이 있다.

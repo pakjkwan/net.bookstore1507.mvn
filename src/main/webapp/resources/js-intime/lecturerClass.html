@@ -1,0 +1,220 @@
+
+<div class='list_table' style="overflow : scroll; height: 500px; overflow-x : hidden">
+	<table id='list_table_class' style='border-collapse: collapse'>
+		<tr>
+			<th id='choose'>선택</th>
+			<th id='classNo'>No.</th>
+			<th id='className'>강좌명</th>
+			<th id='lecName'>강사명</th>
+			<th id='classRoom'>강의실</th>
+			<th id='startDate'>시작일</th>
+			<th id='endDate'>종료일</th>
+			<th id='classDetail'>인원</th>
+			<th id='addLecturer'>강사등록</th>
+		</tr>
+		<!-- Click Event : ".lecturerLink" event.stopImmediatePropagation();-->
+	</table>
+
+	<!-- <script>
+		lecturerClass.init();                                 
+	</script> -->
+</div>
+
+<div class="buttonFooter">
+			<input type="button" value="등록" id="addClass">
+			<input type="button" value="수정" id="updateClass">
+			<input type="button" value="삭제" id="removeClass">
+</div>
+
+
+<!-- @@@@@@@@@@ 여기 부분은 autoComplete 부분 연습
+<div class="ui-widget">
+<label for='search'>search:</label>
+<input id='teacherSearch' style='width : 500px'/>
+<div id="searchResult"></div>
+</div>
+-->
+
+<!-- 등록버튼 눌렀을때 강좌 등록 팝업 -->
+<div id='addClassDialog'>
+	<form action='' method='post'>
+		<fieldset class='step'>
+			<legend>강좌등록</legend>
+			<ul>
+				<li><label for='className'>강좌명</label> <input id='className'
+					name='className'></li>
+				<li><label for='classRoom'>강의실</label> <input id='classRoom'
+					name='classRoom'></li>
+				<li><label for='classStart'>시작일</label> <input type="text"
+					id='classStart' name='classStart'></li>
+				<li><label for='classEnd'>종료일</label> <input type="text"
+					id='classEnd' name='classEnd'></li>
+			</ul>
+			<br> <br>
+		</fieldset>
+		<fieldset class='step'>
+			<legend>강의시간</legend>
+			
+			<!-- Click Event : "#btnAddTime" -->
+			<ul>
+				<li><label for='classEnd'>강의요일</label> <select name="day"
+					id="day">
+						<option value="aaa">선택하세요</option>
+						<option value="mon">월</option>
+						<option value="tues">화</option>
+						<option value="wednes">수</option>
+						<option value="thurs">목</option>
+						<option value="fri">금</option>
+						<option value="satur">토</option>
+						<option value="sun">일</option>
+				</select></li>
+				<li><label for='classStart'>시작시간</label> <input type="time"
+					id='classStartTime' name='classStart'></li>
+				<li><label for='classEnd'>종료시간</label> <input type="time"
+					id='classEndTime' name='classEnd'></li>
+			</ul>
+			<input id="btnAddTime" type="button" value="+시간추가">
+		</fieldset>
+		<div id="addTime">
+			<table id="addTimeTable" class="list_table">
+				<!-- Click Event : ".timeRow" -->
+				<tr>
+					<th>요일</th>
+					<th>시작시간</th>
+					<th>종료시간</th>
+					<th>삭제</th>
+				</tr>
+			</table>
+		</div>
+
+		<input id="btnAddClass" type="button" value=등록>
+		<!-- Click Event : "#btnAddClass" -->
+		<input id="btnCloseClass" type="button" value="취소">
+		<!-- Click Event : "#btnCloseClass" -->
+	</form>
+</div>
+
+<!-- 강사등록 +모양버튼 -->
+<div id="addLecturerDialog">
+	<fieldset class='step'>
+		<legend>강사이름을 입력하세요.</legend>
+		<div id="searchDiv">
+			<input id="searchBox" type="search">
+			<p id="searchReusltMsg"></p> 
+		</div>
+		<br>
+		<legend>검색결과</legend>
+		<div id="lecturerImg"></div>
+		<br>
+		<ul>
+			<li><label for='lecturerName'>이름</label> <input
+				id='lecturerName' name='lecturerName' readonly="readonly"></li>
+			<li><label for='lecturerTel'>전화번호</label> <input
+				id='lecturerTel' name='lecturerTel' readonly="readonly"></li>
+			<li><label for='lecturerEmail'>이메일</label> <input
+				id='lecturerEmail' name='lecturerEmail' readonly="readonly">
+			</li>
+			<li><label for='lecturerAddr'>주소</label> <input
+				id='lecturerAddr' name='lecturerAddr' readonly="readonly"></li>
+		</ul>
+		<input type="button" id="lecAddButton" value="등록">
+		<!-- Click Event : "#lecAddButton" -->
+		<input type="button" id="lecCloseButton" value="취소">
+		<!-- Click Event : "#lecCloseButton" -->
+	</fieldset>
+</div>
+
+<!-- 강좌목록에서 상세보기 버튼눌렀을때 팝업 -->
+<div id="detailClassDialog">
+	<!-- Click Event : "#detailLink" -->
+	<div class='list_table' id="detailTimeDiv">
+		<table id="detailTimeDialog" style="border-collapse:collapse">
+			<tr>
+				<th>요일</th>
+				<th>시작시간</th>
+				<th>종료시간</th>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<input type="button" id='detailClassDialogClose' value='닫기'>
+	<br>
+	<!-- Click Event : "#detailClassDialogClose" -->
+</div>
+
+<!-- 삭제버튼 눌렀을때 경고창 -->
+<!-- 수정버튼 눌렀을때 -->
+<div id='updateClassDialog'>
+	<form action='' method='post'>
+		<fieldset class='step'>
+			<legend>강좌수정</legend>
+			<ul>
+				<li><label for='className'>강좌명</label> <input id='NclassName'
+					name='className'></li>
+				<li><label for='classRoom'>강의실</label> <input id='NclassRoom'
+					name='classRoom'></li>
+				<li><label for='classStart'>시작일</label> <input type="text"
+					id='NclassStart' name='classStart'></li>
+				<li><label for='classEnd'>종료일</label> <input type="text"
+					id='NclassEnd' name='classEnd'></li>
+			</ul>
+			<br> <br>
+		</fieldset>
+		<fieldset class='step'>
+			<legend>강의시간</legend>
+			
+			<!-- Click Event : "#NbtnAddTime" -->
+			<ul>
+				<li><label for='classEnd'>강의요일</label> <select name="day"
+					id="Nday">
+						<option value="aaa">선택하세요</option>
+						<option value="mon">월</option>
+						<option value="tues">화</option>
+						<option value="wednes">수</option>
+						<option value="thurs">목</option>
+						<option value="fri">금</option>
+						<option value="satur">토</option>
+						<option value="sun">일</option>
+				</select></li>
+				<li><label for='classStart'>시작시간</label> <input type="time"
+					id='NclassStartTime' name='classStart'></li>
+				<li><label for='classEnd'>종료시간</label> <input type="time"
+					id='NclassEndTime' name='classEnd'></li>
+			</ul>
+			<input id="NbtnAddTimes" type="button" value="+시간추가">
+		</fieldset>
+		<div id="NaddTime">
+			<table id="NaddTimeTable" class="list_table">
+				<!-- Click Event : ".timeRow" -->
+				<tr>
+					<th>요일</th>
+					<th>시작시간</th>
+					<th>종료시간</th>
+					<th>삭제</th>
+				</tr>
+			</table>
+		</div>
+
+		<input id="NbtnAddClass" type="button" value="수정">
+		<!-- Clcik Event : "#NbtnAddClass"-->
+		<input id="NbtnCloseClass" type="button" value="취소">
+		<!-- Click Event : "#NbtnCloseClass" -->
+	</form>
+</div>
+
+<script>
+		lecturerClass.init();
+		/* $("input#classStart, input#classEnd").datepicker(
+				{
+					dateFormat : "yy-mm-dd",
+					showMonthAfterYear : true,
+					dayNamesMin : [ '월', '화', '수', '목', '금', '토', '일' ],
+					monthNames : [ '1월', '2월', '3월', '4월', '5월', '6월', '7월',
+							'8월', '9월', '10월', '11월', '12월' ],
+					showButtonPanel : true,
+					currentText : '오늘 날짜',
+					closeText : '닫기'
+				}); */
+</script>
+
+

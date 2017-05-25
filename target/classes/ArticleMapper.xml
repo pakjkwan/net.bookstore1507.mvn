@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bankspring.mapper.ArticleMapper">
+   <!-- ************************************* --> 
+   <!--   			executeUpdate             -->
+   <!-- **************************************--> 
+    
+	<insert id="insert" parameterType="Article">
+		 insert into Article(ART_SEQ, THM_SEQ, USERID, POSTING_DATE, READ_CNT, TITLE,CONTENT) 
+        values(
+         seq.nextval,#{thmSeq},#{userid},sysdate,#{readCnt},#{title},#{content}
+        )
+	</insert>
+	<update id="update" parameterType="Article">
+		UPDATE article 
+        SET title = #{title}, content = #{content} 
+        WHERE art_seq = #{artSeq}
+	</update>
+	<delete id="delete" parameterType="Article">
+		delete from article
+		where art_seq=#{artSeq}
+	</delete>
+	
+	<!-- ************************************* -->
+    <!--   			executeQuery               -->
+    <!-- ************************************* --> 
+    
+	<select id="detail" resultType="Article" parameterType="Command">
+		select  
+        	a.art_seq as artSeq, 
+			a.thm_seq as thmSeq,  
+			a.userid  as userid ,  
+			a.book_seq as bookSeq, 
+			to_char(a.posting_date,'yyyy-mm-dd hh24:mi:ss') as postingDate, 
+			a.read_cnt as readCnt, 
+			a.title as title, 
+			a.content as content,
+			m.name as name   
+       		 from Article a join Member m 
+       		 on a.userid = m.userid 
+       		 and a.userid = #{searchVal}
+       		
+       		 where art_seq = #{theme}
+	
+	</select>
+	<select id="search" resultType="Article" parameterType="Command">
+		
+		select t2.* from (select rownum as seq,t.* 
+        from    (select 
+                                    
+                        a.art_seq as artSeq,
+                        a.thm_seq as thmSeq,
+                        a.userid as userid,
+                        a.book_seq as bookSeq,
+                        to_char(a.posting_date,'yyyy-mm-dd hh24:mi:ss ') as postingDate,
+                        a.read_cnt as readCnt,
+                        a.title as title,
+                        a.content as content,
+                        m.name as name
+                from 
+                    Article a join Member m on a.userid = m.userid
+                    and a.userid = #{searchVal}
+                    and a.thm_seq = #{theme}
+                     order by postingdate desc  
+                     
+                    ) t)t2
+     where t2.seq between #{start} and #{end}
+      order by t2.seq asc
+           
+	</select>
+	<select id="list" resultType="Article" parameterType="Command">
+		select t2.* from (select rownum as seq,t.* 
+        from    (select 
+                                    
+                        a.art_seq as artSeq,
+                        a.thm_seq as thmSeq,
+                        a.userid as userid,
+                        a.book_seq as bookSeq,
+                        to_char(a.posting_date,'yyyy-mm-dd hh24:mi:ss ') as postingDate,
+                        a.read_cnt as readCnt,
+                        a.title as title,
+                        a.content as content,
+                        m.name as name
+                from 
+                    Article a join Member m on a.userid = m.userid
+                   
+                    and a.thm_seq = #{theme}
+                     order by postingdate desc  
+                     
+                    ) t)t2
+     where t2.seq between 1 and 10
+      order by t2.seq asc
+		
+	</select>
+	<select id="count" resultType="int" parameterType="Command"></select>
+	<select id="size" resultType="int">
+		select count(*) 
+		from Article a join Member m
+		on a.userid = m.userid
+		and a.thm_seq = #{theme}
+		where m.userid = #{searchVal}
+	</select>
+	
+
+    
+</mapper>

@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+.gnb{height: 52px;}
+.clear{clear: both;}
+.centT{font-size: 30px;text-align: center;font: bold;}	 
+.centTd{
+	 font-size: 50px;
+	 text-align: center;
+}
+.tab{border: 1px solid black;font-size: 21px;font: bold;
+	width : 95%; 
+	margin : 0 auto;
+}
+.tab tr td{height: 20px;border: 1px solid black;}
+.tab tr th{height: 20px;border: 1px solid black;background-color: yellow}
+.hidden{display:none;}
+/*book team*/
+.aside{
+	display:inline-block;
+	width: 300px;
+	min-height: 150px ;
+	vertical-align: top;
+	float: left;
+}
+/*jQueryDemo 에 있는 class*/
+.article {
+    width: 80%;
+     min-height: 50%; 
+    position: relative;
+    z-index: 10;
+    margin: -50px 0 -50px 0;
+    /* background-color: #FF6 노랑*/
+}
+.border{border : 1px solid black;}
+.box{width : 100%;margin : 0 auto;}
+.content{min-height: 600px;}
+.outbox{width : 1000px;margin : 0 auto;}
+.pad{ padding : 10 10}
+.wrapper{width:100%;}
+.item{ float : left; width : 100px}

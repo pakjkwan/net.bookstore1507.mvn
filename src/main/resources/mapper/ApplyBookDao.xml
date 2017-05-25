@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.ApplyPageDao">
+
+<!-- 	책을 신청하면 LEND 테이블에 정보가 들어가야함 -->
+	<insert id="applyBook" parameterType="map">
+		INSERT INTO
+			LEND(
+				Mem_No, Apply_Date, Pers_Book_No, Apply_Status_Code
+			)
+		VALUES(
+			#{memNo}, now(), #{persBookNo}, '1'
+		)	
+	</insert>
+	
+<!-- 	<select id="applyOwner" parameterType="map" resultType="applyOwners">
+		SELECT
+			m.ID as id,
+			m.Name as name,
+			m.Addr1 as addr1,
+			m.Pho_No as phoNo,
+			m.Email as email,
+			m.Photo_Url as photoUrl,
+			x.Reg_Code as regCode,
+			x.Pers_Book_No as persBookNo
+		FROM	
+		(
+			SELECT	
+				l.Apply_No,
+				pl.ISBN,
+				pl.Reg_Code,
+				l.Apply_Status_Code,
+				l.Pers_Book_No,
+				pl.Mem_No
+			FROM
+				BOOK b, 
+				PERSONAL_LIBRARY pl, 
+				MEMBER m,
+				LEND l
+			WHERE
+				b.ISBN=pl.ISBN
+			AND
+				pl.Mem_No=m.Mem_No
+			AND
+				l.Pers_Book_No=pl.Pers_Book_No
+			AND
+				l.Apply_Status_Code in ('1', '4')
+			AND
+				b.ISBN=#{isbn}
+		
+			UNION
+		
+			SELECT
+				l.Apply_No,
+				pl.ISBN,
+				pl.Reg_Code,
+				l.Apply_Status_Code,
+				pl.Pers_Book_No,
+				pl.Mem_No
+			FROM
+				PERSONAL_LIBRARY pl
+				LEFT OUTER JOIN
+					LEND l
+				ON
+					pl.Pers_Book_No=l.Pers_Book_No
+			WHERE
+				l.Apply_No is NULL
+			AND
+				pl.ISBN=#{isbn}
+			)x
+			JOIN
+				MEMBER m
+			ON
+				x.Mem_No=m.Mem_No
+			GROUP BY(id)
+			LIMIT
+				#{pageStartIndex}, #{pageSize}
+	</select> -->
+	
+<!-- 	책의 소유자 정보 -->
+	<select id="applyOwners" parameterType="map" resultType="applyOwners">
+	
+		select
+			m.ID as id,
+			m.Name as name,
+			m.Addr1 as addr1,
+			m.Pho_No as phoNo,
+			m.Email as email,
+			m.Photo_Url as photoUrl,
+			pl.Reg_Code as regCode,
+			pl.Pers_Book_No as persBookNo
+		from
+			MEMBER m, PERSONAL_LIBRARY pl
+		where
+			pl.ISBN=#{isbn}
+		and
+			pl.Mem_No=m.Mem_No
+		and
+			m.Mem_No!=#{memNo}
+		and
+			pl.Rental_Status='1'
+		limit
+			#{pageStartIndex}, #{pageSize}
+			
+	</select>
+	
+<!-- 	로그인 전 책의 위치를 알기 위한 쿼리 -->
+	<select id="applyBookLoc" parameterType="map" resultType="applyOwners">
+	
+		select
+			m.Addr1 as addr1,
+			pl.Reg_Code as regCode
+		from
+			MEMBER m, PERSONAL_LIBRARY pl
+		where
+			pl.ISBN=#{isbn}
+		and
+			pl.Mem_No=m.Mem_No
+		and
+			pl.Rental_Status='1'
+		limit
+			#{pageStartIndex}, #{pageSize}
+			
+	</select>
+	
+<!-- 	책 신청 팝업에서 소유자 정보의 페이징 처리를 위한 소유자 수 -->
+	<select id="size" parameterType="map" resultType="int" >
+	
+		select
+			count(pl.Pers_Book_No)
+		from
+			MEMBER m, PERSONAL_LIBRARY pl
+		where
+			pl.ISBN=#{isbn}
+		and
+			pl.Mem_No=m.Mem_No
+		and
+			m.Mem_No!=#{memNo}
+		and
+			pl.Rental_Status='1'
+			
+	</select>
+	
+<!-- 	<select id="size" parameterType="map" resultType="int" > -->
+	
+<!-- 		select count(j.ID) -->
+<!-- 			from -->
+<!-- 			( -->
+<!-- 			SELECT -->
+<!-- 				m.ID,m.name -->
+<!-- 			FROM	 -->
+<!-- 			( -->
+<!-- 				SELECT	 -->
+<!-- 					l.Apply_No, -->
+<!-- 					pl.ISBN, -->
+<!-- 					pl.Reg_Code, -->
+<!-- 					l.Apply_Status_Code, -->
+<!-- 					l.Pers_Book_No, -->
+<!-- 					pl.Mem_No -->
+<!-- 				FROM -->
+<!-- 					BOOK b,  -->
+<!-- 					PERSONAL_LIBRARY pl,  -->
+<!-- 					MEMBER m, -->
+<!-- 					LEND l -->
+<!-- 				WHERE -->
+<!-- 					b.ISBN=pl.ISBN -->
+<!-- 				AND -->
+<!-- 					pl.Mem_No=m.Mem_No -->
+<!-- 				AND -->
+<!-- 					l.Pers_Book_No=pl.Pers_Book_No -->
+<!-- 				AND -->
+<!-- 					l.Apply_Status_Code in ('1', '4') -->
+<!-- 				AND -->
+<!-- 					b.ISBN=#{isbn} -->
+			
+<!-- 				UNION -->
+			
+<!-- 				SELECT -->
+<!-- 					l.Apply_No, -->
+<!-- 					pl.ISBN, -->
+<!-- 					pl.Reg_Code, -->
+<!-- 					l.Apply_Status_Code, -->
+<!-- 					pl.Pers_Book_No, -->
+<!-- 					pl.Mem_No -->
+<!-- 				FROM -->
+<!-- 					PERSONAL_LIBRARY pl -->
+<!-- 					LEFT OUTER JOIN -->
+<!-- 						LEND l -->
+<!-- 					ON -->
+<!-- 						pl.Pers_Book_No=l.Pers_Book_No -->
+<!-- 				WHERE -->
+<!-- 					l.Apply_No is NULL -->
+<!-- 				AND -->
+<!-- 					pl.ISBN=#{isbn} -->
+<!-- 			)x -->
+<!-- 			JOIN -->
+<!-- 				MEMBER m -->
+<!-- 			ON -->
+<!-- 				x.Mem_No=m.Mem_No			 -->
+<!-- 			WHERE -->
+<!-- 				m.Mem_No NOT IN (#{memNo}) -->
+<!-- 			GROUP BY(ID) -->
+<!-- 			)j -->
+			
+<!-- 	</select> -->
+	
+	<select id="rentalCount" parameterType="int" resultType="int" >
+	
+		select
+			ifnull(max(rentalNull),0) 
+		from
+		(
+			select
+				m.Mem_No,count(l.Apply_No) as rentalNull
+			from
+				MEMBER m
+			join
+				LEND l	
+			on
+				m.Mem_No=l.Mem_No
+			join
+				DELIVERY d
+			on
+				l.Apply_No=d.Apply_No
+			where
+				m.Mem_No=#{memNo}
+			and
+				d.Rec_Date between (SELECT current_date - INTERVAL 1 month)
+				and	current_date
+			group by(m.Mem_No)
+		)x
+			
+	</select>
+	
+	<select id="pbnPagingSize" parameterType="string" resultType="int">
+	
+		select
+			count(Pers_Book_No)
+		from
+			PERSONAL_LIBRARY
+		where
+			ISBN=#{isbn}
+		and
+			Rental_Status='1'
+			
+	</select>
+	
+</mapper>

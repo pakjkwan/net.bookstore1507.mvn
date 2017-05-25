@@ -1,0 +1,55 @@
+<div id="projectPanel">
+<h1>프로젝트 목록</h1>
+<div id="projectList">
+<table id="projectTable">
+<tr>
+	<th>번호</th>
+	<th>프로젝트명</th>
+	<th>시작일</th>
+	<th>종료일</th>
+</tr>
+
+</table>
+<p>
+<a id="prevList" href="#">[이전]</a>
+<span id="currPageNo"></span>
+<a id="nextList" href="#">[다음]</a>
+</p>
+</div>
+
+<h2>프로젝트 정보</h2>
+<div id="projectInfo">
+<form id="projectForm">
+<ul>
+	<li><label for='no'>번호:</label> 
+		<input id="no" type="text" name="no" readonly></li>
+	<li><label for='title'>프로젝트명:</label>
+		<input id="title" type="text" name="title" value=""></li>
+	<li><label for='description'>설명:</label>
+		<textarea id="description" name="description" rows="5" cols="50"></textarea></li>
+	<li><label for='startDate'>시작일:</label>
+		<input id="startDate" type="text" name="startDate" value=""></li>
+	<li><label for='endDate'>종료일:</label>
+		<input id="endDate" type="text" name="endDate" value=""></li>
+	<li><label for='emailList'>팀원:</label>
+		<textarea id="emailList" name="emailList" rows="5" cols="50"></textarea></li>
+	<li><label></label>
+		<input id="addBtn" type="button" value="등록">
+		<input id="changeBtn" type="button" value="변경">
+		<input id="deleteBtn" type="button" value="삭제">
+		<input id="resetBtn" type="reset" value="취소"></li>
+</ul>
+</form>
+</div>
+<script>
+	project.init();
+</script>
+</div>
+
+
+
+
+
+
+
+

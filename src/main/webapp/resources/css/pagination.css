@@ -1,0 +1,8 @@
+@CHARSET "UTF-8";
+.clickable {cursor: pointer;}
+.hover {text-decoration: underline;}
+table{text-align:left;}
+th{ background:#F90;}
+.odd{ background: #FFC;}
+.even{ background: #FF9;}
+.active{ width:10px; height:10px; background:#0CC;}

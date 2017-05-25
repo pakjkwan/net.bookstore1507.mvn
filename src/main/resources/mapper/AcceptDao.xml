@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.libridge.dao.AcceptDao">
+
+	<select id="acceptList" parameterType="map" resultType="accept">
+	
+		select
+			l.Apply_No as applyNo,
+			l.Apply_Date as applyDate,
+			m.Mem_No as memNo,
+			m.ID as id,
+			m.Name as name,
+			b.TiTle as title,
+			l.Apply_Status_Code as applyStatusCode,
+			b.ISBN as isbn,
+			pl.Rental_Status as rentalStatus,
+			pl.Reg_Code as regCode
+		from
+			LEND l, MEMBER m, PERSONAL_LIBRARY pl, BOOK b
+		where
+			pl.Mem_No=#{memNo}
+		and
+			pl.Reg_Code='1' 
+		and
+			pl.Pers_Book_No = l.Pers_Book_No
+		and
+			pl.ISBN = b.ISBN
+		and
+			m.Mem_no=l.Mem_no
+		order by
+			Apply_Status_Code,
+			Apply_Date DESC
+		limit
+			#{pageStartIndex}, #{pageSize}
+			
+	</select>
+	
+	<select id="size" parameterType="int" resultType="int">
+	
+		select
+			count(x.Apply_No)
+		from
+		(
+			select
+				l.Apply_No
+			from
+				LEND l, MEMBER m, PERSONAL_LIBRARY pl
+			where
+				pl.Reg_Code='1'
+			and 
+				pl.Pers_Book_No = l.Pers_Book_No
+			and
+				m.Mem_no=l.Mem_no
+			and
+				pl.Mem_No=#{memNo}
+		)x
+
+	</select>
+	
+	<select id="lendDeliveryList" parameterType="map" resultType="accept">
+	
+		select
+			l.Assign_Date as assignDate,
+			m.Name as name,
+			m.ID as id,
+			b.TiTle as title,
+			d.Del_Code as delCode,
+			d.Apply_No as applyNo,
+			pl.Reg_Code as regCode
+		from 
+			LEND l, DELIVERY d, PERSONAL_LIBRARY pl, MEMBER m, BOOK b
+		where
+			pl.Mem_No=#{memNo}
+		and
+			pl.Reg_Code='1'
+		and
+			pl.Pers_Book_No=l.Pers_Book_No
+		and
+			l.Apply_No=d.Apply_No
+		and
+			l.Mem_No=m.Mem_No
+		and
+			d.Del_Code IN ('1', '2')
+		and
+			pl.ISBN=b.ISBN
+		order by
+			d.Del_Code,
+			l.Assign_Date DESC
+		limit 
+			#{pageStartIndex}, #{pageSize}
+				
+	</select>
+	
+	<select id="size1" parameterType="int" resultType="int">
+	
+		select
+			count(x.Del_No)
+		from
+		(
+			select 
+				d.Del_No
+			from 
+				LEND l, DELIVERY d, PERSONAL_LIBRARY pl, MEMBER m
+			where
+				pl.Mem_No=#{memNo}
+			and
+				pl.Reg_Code='1'
+			and
+				pl.Pers_Book_No=l.Pers_Book_No
+			and
+				l.Apply_No=d.Apply_No
+			and
+				l.Mem_No=m.Mem_No
+			and
+				d.Del_Code IN ('1', '2')
+		)x
+		
+	</select>
+	
+	<update id="deliveryConfirm" parameterType="int">
+	 	    
+		update DELIVERY set
+		
+			Del_Code=2,
+			Send_Date=now()
+			
+		where
+			Apply_No=#{applyNo};
+	 </update>
+	
+	<select id="lendList" parameterType="map" resultType="accept">
+	    
+		select 
+			d.Apply_No as applyNo,
+			d.Rec_Date as recDate,
+			m.ID as id,
+			m.Name as name,
+			b.TiTle as title,
+			d.Del_Code as delCode,
+			pl.Reg_Code as regCode
+		from 
+			LEND l, DELIVERY d, MEMBER m, PERSONAL_LIBRARY pl, BOOK b
+		where
+			pl.Mem_No=#{memNo}
+		and
+			pl.Reg_Code='1'
+		and
+			pl.Pers_Book_No=l.Pers_Book_No
+		and
+			l.Apply_No=d.Apply_No
+		and
+			d.Del_Code IN ('3','4','5')
+		and
+			pl.ISBN=b.ISBN
+		and
+			l.Mem_No=m.Mem_No
+		order by
+			Rec_Date DESC
+		limit
+			#{pageStartIndex}, #{pageSize}
+				
+	</select>
+	
+	<select id="size2" parameterType="int" resultType="int">
+	
+		select
+			count(x.Del_No)
+		from
+		(
+			select
+				d.Del_No
+			from 
+				LEND l, DELIVERY d, MEMBER m, PERSONAL_LIBRARY pl
+			where
+				pl.Mem_No=#{memNo}
+			and
+				pl.Reg_Code='1'
+			and
+				pl.Pers_Book_No=l.Pers_Book_No
+			and
+				l.Apply_No=d.Apply_No
+			and
+				d.Del_Code IN ('3','4','5')
+			and
+				l.Mem_No=m.Mem_No
+		)x
+	
+	</select>
+	
+	<update id="returnComplConfirm" parameterType="int">
+	 	    
+		update DELIVERY set
+		
+			Del_Code='5',
+			Return_Compl_Date=now()
+			
+		where
+			Apply_No=#{applyNo};
+	 </update>
+	 
+ 	<update id="rentalComplete" parameterType="int">
+	 	    
+		update LEND set
+		
+			Apply_Status_Code='4',
+			Lend_Compl_Date=now()
+			
+		where
+			Apply_No=#{applyNo};
+			
+	 </update>
+	 
+	<!-- 대여된 책 반납 확인시 대여 가능 코드로 변경(PERSONAL_LIBRARY의 Rental_Status = 1 -->
+	<update id="rentalStatusY" parameterType="int">
+	
+		update
+			PERSONAL_LIBRARY
+		set
+			Rental_Status = '1'
+		where
+			Pers_Book_No = 
+		(
+			select
+				l.Pers_Book_No
+			from
+				LEND l
+			where
+				l.Apply_No = #{applyNo}
+		);
+			
+	</update>
+	
+</mapper>

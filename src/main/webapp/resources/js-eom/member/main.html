@@ -1,0 +1,55 @@
+<div id="memberPanel">
+<h1>멤버 목록</h1>
+<div>
+<table id="memberTable">
+<tr>
+	<th>이름</th>
+	<th>이메일</th>
+	<th>전화</th>
+</tr>
+
+</table>
+<p>
+<a id="prevList" href="#">[이전]</a>
+<span id="currPageNo"></span>
+<a id="nextList" href="#">[다음]</a>
+</p>
+</div>
+
+<h2>멤버 정보</h2>
+<div>
+<form id="memberForm">
+<ul>
+	<li><label for='email'>이메일:</label> 
+		<input id="email" type="text" name="email"></li>
+	<li><label for='name'>이름:</label>
+		<input id="name" type="text" name="name" value=""></li>
+	<li><label for='tel'>전화:</label>
+		<input id="tel" type="text" name="tel" value=""></li>
+	<li><label for='password'>암호:</label>
+		<input id="password" type="text" name="password" value=""></li>
+	<li><label for='regDate'>가입일:</label>
+		<input id="regDate" type="text" name="regDate" value="" readonly></li>
+	<li><label></label>
+		<input id="addBtn" type="button" value="등록">
+		<input id="changeBtn" type="button" value="변경">
+		<input id="deleteBtn" type="button" value="삭제">
+		<input id="resetBtn" type="reset" value="취소"></li>
+</ul>
+</form>
+
+<h3>프로젝트</h3>
+<ul id="projects"></ul>
+</div>
+<script>
+	member.init();
+</script>
+</div>
+
+
+
+
+
+
+
+

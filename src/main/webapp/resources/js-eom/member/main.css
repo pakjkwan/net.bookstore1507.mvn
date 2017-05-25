@@ -1,0 +1,18 @@
+@CHARSET "UTF-8";
+
+#memberForm ul {
+	padding: 0;
+}
+
+#memberForm li {
+	list-style: none;
+}
+
+#memberForm label {
+	float: left;
+	width: 60px;
+	text-align: right;
+	margin: 4px 5px 0 0; 
+}
+
+

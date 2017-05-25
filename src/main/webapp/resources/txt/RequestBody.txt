@@ -1,0 +1,28 @@
+@ResponseBody와 jackson을 이용하여 JSON 사용하기
+
+
+@ResponseBoady란?
+
+
+메서드에 @ResponseBody Annotation이 되어 있으면 return되는 값은 View를 통해서
+
+출력되는 것이 아니라 HTTP Response Body에 직접쓰여지게 된다.
+
+
+
+
+MessageConverter의 종류
+
+
+- StringHttpMessageConverter
+
+- FormHttpMessageConverter
+
+
+- ByteArrayMessageConverter
+
+- MarshallingHttpMessageConverter
+
+★  MappingJacksonHttpMessageConverter ★
+
+==> 사용할건 MappingJacksonHttpMessageConverter 

@@ -1,0 +1,76 @@
+<!--======================================================-->
+<!--insert-->
+<!--======================================================-->
+<form action="itemInsert.do" name="insert_item" 
+	enctype="multipart/form-data">
+	
+	<table  style="border: solid 1px gray; width:100%;border-collapse: collapse; " >
+			<tr style="width:30%">
+				<td style="color:blue">영화 사진(파란색부분은 필수 입력)</td>
+				<td><input type="file" name="img_name"></td>
+			</tr>
+			<tr style="width:70%">
+				<td style="color:blue">영화 종류</td>
+				<td> 
+				<select name=cate_name onChange="sortCheck()">
+						<option value="drama" selected="selected">drama</option>
+						<option value="action">action</option>
+						<option value="comedy">comedy</option>
+						<option value="romantic">romantic</option>
+						<option value="horror">horror</option>						
+				</select></td>
+			</tr>
+			<!-- style="text-align:center" -->
+			<tr>
+				<td>예매구분</td>
+				<td><input type=radio name='saleType' value="present_true">현장 예매
+					<input type=radio name='saleType' value="일반판매용" checked=checked>인터넷 예매
+				</td>
+			</tr>
+			<tr>
+				<td style="color:blue">영화제목</td>
+				<td><input type=text name='item_name' value=""></td>
+			</tr>
+			<tr>
+				<td>상영시간</td>
+				<td><input type=text name='capa' value="75"></td>
+			</tr>
+			<tr>
+				<td>티켓가격</td>
+				<td><input type=text name='price' value='8000'></td>
+			</tr>
+			<tr>
+				<td>개봉일</td>
+				<td><input type=text name='pdDate' value='2015-01-01'></td>
+			</tr>
+		
+			<tr>
+				<td>영화설명</td>
+				<td><textarea cols="50" rows="10" onclick="this.select()"
+						onfocus="this.select()" name="description" ></textarea></td>
+			</tr>
+			 <tr>
+				<td>제작국가</td>
+				<td><input type="text" name='pdOrg' value="한국"></td>
+			</tr>
+			<tr>
+				<td>영화설명</td>
+				<td><input type="file" name='bigImg'></td>
+			</tr>
+			<tr>
+			
+				<td colspan="2"><input type="submit" value="Submit"> &nbsp;
+				 <input type="reset" value="Reset"></td>
+			</tr>
+		</table>
+	</form>
+<!--======================================================-->
+<!--update-->
+<!--======================================================-->	
+<!--======================================================-->
+<!--detail-->
+<!--======================================================-->
+
+<!--======================================================-->
+<!--list-->
+<!--======================================================-->
